@@ -40,27 +40,27 @@ let defaultData: Person list = [
 ]
 
 let columnDef: ColumnDefOption<Person> list list = [
-    [ Id "firstname"
-      AccessorKey "Firstname"
-      Cell (fun info -> info.getValue()) ]
-    [ Id "lastName"
-      AccessorKey (nameof Unchecked.defaultof<Person>.Lastname)
-      Cell (fun info -> Html.i [ prop.text (info.getValue<int>()) ])
-      HeaderFn (fun _ -> Html.span [ prop.text "Last Name" ])
-      FooterFn (fun info -> info.column.id) ]
-    [ AccessorKey "Age"
-      HeaderFn (fun _ -> "Age")
-      Cell (fun info -> info.renderValue())
-      FooterFn (fun info -> info.column.id) ]
-    [ AccessorKey "Visits"
-      HeaderFn (fun _ -> Html.span [ prop.text "Visits" ])
-      FooterFn (fun info -> info.column.id) ]
-    [ AccessorKey "Status"
-      Header "Status"
-      FooterFn (fun info -> info.column.id) ]
-    [ AccessorKey "Progress"
-      Header "Profile Progress"
-      FooterFn (fun info -> info.column.id) ]
+    [ columnDef.id "firstname"
+      columnDef.accessorKey "Firstname"
+      columnDef.cell (fun info -> info.getValue()) ]
+    [ columnDef.id "lastName"
+      columnDef.accessorKey (nameof Unchecked.defaultof<Person>.Lastname)
+      columnDef.cell (fun info -> Html.i [ prop.text (info.getValue<int>()) ])
+      columnDef.header (fun _ -> Html.span [ prop.text "Last Name" ])
+      columnDef.footer (fun info -> info.column.id) ]
+    [ columnDef.accessorKey "Age"
+      columnDef.header (fun _ -> "Age")
+      columnDef.cell (fun info -> info.renderValue())
+      columnDef.footer (fun info -> info.column.id) ]
+    [ columnDef.accessorKey "Visits"
+      columnDef.header (fun _ -> Html.span [ prop.text "Visits" ])
+      columnDef.footer (fun info -> info.column.id) ]
+    [ columnDef.accessorKey "Status"
+      columnDef.header "Status"
+      columnDef.footer (fun info -> info.column.id) ]
+    [ columnDef.accessorKey "Progress"
+      columnDef.header "Profile Progress"
+      columnDef.footer (fun info -> info.column.id) ]
 ]
 
 let rec createTable () =

@@ -1,4 +1,4 @@
-module App
+module Application
 open App
 open Elmish
 open Elmish.React

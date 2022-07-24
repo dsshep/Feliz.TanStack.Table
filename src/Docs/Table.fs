@@ -22,18 +22,18 @@ let links: Link list = [
 ]
 
 let columnDef: ColumnDefOption<Link> list list = [
-  [ Id "Name"
-    AccessorKey "Name"
-    Cell (fun info -> info.getValue()) ]
-  [ Id "Url"
-    AccessorKey "Url"
-    Cell (fun info -> Html.a [
+  [ columnDef.id "Name"
+    columnDef.accessorKey "Name"
+    columnDef.cell (fun info -> info.getValue()) ]
+  [ columnDef.id "Url"
+    columnDef.accessorKey "Url"
+    columnDef.cell (fun info -> Html.a [
       prop.href (info.getValue<string>())
       prop.text (info.getValue<string>())
     ]) ]
-  [ Id "Description"
-    AccessorKey "Description"
-    Cell (fun info -> info.getValue()) ]
+  [ columnDef.id "Description"
+    columnDef.accessorKey "Description"
+    columnDef.cell (fun info -> info.getValue()) ]
 ]
 
 let rec createTable(render) =

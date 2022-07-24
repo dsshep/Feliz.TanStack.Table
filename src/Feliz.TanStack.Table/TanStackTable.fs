@@ -3,7 +3,7 @@ namespace Feliz.TanStack.Table
 open Feliz.TanStack.Table
 
 [<AutoOpen>]
-module rec Table = 
+module Table = 
 
     open Feliz
     open Fable.Core

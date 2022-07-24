@@ -32,38 +32,37 @@ let defaultData: Person list = [
 ]
 
 let columns: ColumnDefOption<Person> list list = [
-  [ Header "Name"
-    FooterFn (fun props -> props.column.id)
-    Columns [
-      [ AccessorKey "Firstname"
-        Cell (fun info -> info.getValue())
-        FooterFn (fun props -> props.column.id) ]
-      [ AccessorFn (fun row -> row.Lastname)
-        Id "Lastname"
-        Cell (fun info -> info.getValue())
-        HeaderFn (fun _ -> Html.span [ prop.text "Last Name" ])
-        FooterFn (fun props -> props.column.id) ]
+  [ columnDef.header "Name"
+    columnDef.footer (fun props -> props.column.id)
+    columnDef.columns [
+      [ columnDef.accessorKey "Firstname"
+        columnDef.cell (fun info -> info.getValue())
+        columnDef.footer (fun props -> props.column.id) ]
+      [ columnDef.accessorFn (fun row -> row.Lastname)
+        columnDef.id "Lastname"
+        columnDef.cell (fun info -> info.getValue())
+        columnDef.header (fun _ -> Html.span [ prop.text "Last Name" ])
+        columnDef.footer (fun props -> props.column.id) ]
       ]
     ]
-  [ Header "Info"
-    FooterFn (fun props -> props.column.id)
-    Columns [
-      [ AccessorKey "Age"
-        HeaderFn (fun _ -> "Age")
-        FooterFn (fun props -> props.column.id) ]
-      [ Header "More Info"
-        Columns [
-          [ AccessorKey "Visits"
-            HeaderFn (fun _ -> Html.span [ prop.text "Visits" ])
-            FooterFn (fun props -> props.column.id) ]
-          [ AccessorKey "Status"
-            HeaderFn (fun _ -> Html.span [ prop.text "Status" ])
-            FooterFn (fun props -> props.column.id) ]
-          [ AccessorKey "Progress"
-            HeaderFn (fun _ -> Html.span [ prop.text "Profile Progress" ])
-            FooterFn (fun props -> props.column.id) ]
+  [ columnDef.header "Info"
+    columnDef.footer (fun props -> props.column.id)
+    columnDef.columns [
+      [ columnDef.accessorKey "Age"
+        columnDef.header (fun _ -> "Age")
+        columnDef.footer (fun props -> props.column.id) ]
+      [ columnDef.header "More Info"
+        columnDef.columns [
+          [ columnDef.accessorKey "Visits"
+            columnDef.header (fun _ -> Html.span [ prop.text "Visits" ])
+            columnDef.footer (fun props -> props.column.id) ]
+          [ columnDef.accessorKey "Status"
+            columnDef.header (fun _ -> Html.span [ prop.text "Status" ])
+            columnDef.footer (fun props -> props.column.id) ]
+          [ columnDef.accessorKey "Progress"
+            columnDef.header (fun _ -> Html.span [ prop.text "Profile Progress" ])
+            columnDef.footer (fun props -> props.column.id) ]
         ] ]
-      
     ] ]
 ]
 

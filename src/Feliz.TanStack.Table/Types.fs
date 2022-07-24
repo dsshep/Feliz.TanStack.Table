@@ -6,6 +6,9 @@ module rec Types =
     open System.Collections.Generic
     open Feliz
 
+    type TanStackTable =
+        inherit ReactElement
+    
     type HeaderFnProps<'T> =
         abstract member table: Table<'T>
         abstract member header: Header<'T>
@@ -14,15 +17,27 @@ module rec Types =
     type Context<'T> = interface end
 
     type ColumnDefOption<'T> =
+        internal
         | Id of string
         | AccessorKey of string
         | AccessorFn of ('T -> string)
         | Header of string
-        | HeaderFn of (HeaderFnProps<'T> -> obj)
+        | HeaderFn of obj
         | Footer of string
-        | FooterFn of (HeaderFnProps<'T> -> obj)
+        | FooterFn of obj
         | Cell of (CellContext<'T> -> ReactElement)
         | Columns of ColumnDefOption<'T> list list
+        
+    type columnDef =
+        static member id s = Id s
+        static member accessorKey s = AccessorKey s
+        static member accessorFn fn = AccessorFn fn
+        static member header s = Header s
+        static member header<'T1, 'T2> (fn: HeaderFnProps<'T1> -> 'T2) = (HeaderFn fn) : ColumnDefOption<'T1>
+        static member footer s = Footer s
+        static member footer<'T1, 'T2> (fn: HeaderFnProps<'T1> -> 'T2) = (FooterFn fn) : ColumnDefOption<'T1>
+        static member cell<'T> (fn: CellContext<'T> -> ReactElement) = Cell fn
+        static member columns columnDef = Columns columnDef
 
     type CellContext<'T> =
         inherit Context<'T>
