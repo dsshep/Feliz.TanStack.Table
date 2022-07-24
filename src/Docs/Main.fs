@@ -1,29 +1,29 @@
-﻿module Main
+﻿module App.Main
 
-open Table
 open Feliz.TanStack.Table
 open Elmish
 open Feliz
 
+open Table
+open Router
+
 type State = {
-    Count: int
-    ShowTable: bool
+    Page: Page
 }
 
 type Msg = 
-    | Increment
-    | ShowTable
+    | UrlChanged of Page
 
 let init() =
-    { Count = 0; ShowTable = false }, Cmd.none
+    let nextPage = Router.currentUrl() |> Page.parseUrlSegment
+    { Page = nextPage }, Cmd.none
 
 let update (msg : Msg) (state : State) = 
     match msg with 
-    | Increment -> { state with Count = state.Count + 1 }, Cmd.none
-    | ShowTable -> { state with ShowTable = not state.ShowTable }, Cmd.none
+    | UrlChanged page -> { state with Page = page }, Cmd.none
 
 let view (state : State) (dispatch : Msg -> unit) =
-    let tableComponent = createTable(fun table ->
+    let tableElement = createTable(fun table ->
         let thead =
             Html.thead [
                 for headerGroup in table.getHeaderGroups() do
@@ -52,21 +52,6 @@ let view (state : State) (dispatch : Msg -> unit) =
                         ]
                     ]
             ]
-            
-        let tfoot =
-            Html.tfoot [
-                for footerGroup in table.getFooterGroups() do
-                    Html.tr [
-                        prop.key footerGroup.id
-                        prop.children [
-                            for footer in footerGroup.headers do
-                                Html.th [
-                                    prop.key footer.id
-                                    prop.flexRender(footer.column.columnDef.footer, footer.getContext())
-                                ]
-                        ]
-                    ]
-            ]
         
         Html.div [
             prop.classes [
@@ -77,22 +62,23 @@ let view (state : State) (dispatch : Msg -> unit) =
                     prop.children [
                         thead
                         tbody
-                        tfoot
                     ]
                 ]
             ]
         ]
         )
        
-    Html.div [
-        prop.children [
-            Html.p [
-                prop.text $"Count is %i{state.Count}"
-            ]
-            Html.button [
-                prop.text "Increment"
-                prop.onClick(fun _ -> dispatch Increment)
-            ]
-            tableComponent
+    let subTable =
+        match state.Page with
+        | Home -> Html.p [ prop.text "Home" ]
+        | Basic -> Examples.Basic.createTable()
+        | ColumnGroups -> Examples.ColumnGroups.createTable()
+       
+    React.router [
+        router.hashMode
+        router.onUrlChanged (Page.parseUrlSegment >> UrlChanged >> dispatch)
+        router.children [
+            tableElement
+            subTable
         ]
     ]

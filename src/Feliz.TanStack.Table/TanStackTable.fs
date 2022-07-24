@@ -1,5 +1,7 @@
 namespace Feliz.TanStack.Table
 
+open Feliz.TanStack.Table
+
 [<AutoOpen>]
 module rec Table = 
 

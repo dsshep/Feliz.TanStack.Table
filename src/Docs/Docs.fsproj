@@ -4,6 +4,9 @@
     <RootNamespace>App</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Examples\Basic.fs" />
+    <Compile Include="Examples\ColumnGroups.fs" />
+    <Compile Include="Router.fs" />
     <Compile Include="Table.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="App.fs" />
@@ -12,8 +15,10 @@
     <PackageReference Include="Elmish" Version="3.1.0" />
     <PackageReference Include="Fable.Core" Version="3.7.1" />
     <PackageReference Include="Fable.Elmish" Version="3.1.0" />
+    <PackageReference Include="Fable.Elmish.Debugger" Version="3.3.0" />
     <PackageReference Include="Fable.Elmish.HMR" Version="5.2.0" />
     <PackageReference Include="Feliz" Version="1.65.0" />
+    <PackageReference Include="Feliz.Router" Version="3.8.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Feliz.TanStack.Table/Feliz.TanStack.Table.fsproj" />

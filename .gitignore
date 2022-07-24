@@ -212,3 +212,4 @@ dist
 .idea
 *.fs.js
 0.bundle.js
+.fable-build
