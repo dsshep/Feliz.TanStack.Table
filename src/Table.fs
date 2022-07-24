@@ -1,6 +1,6 @@
 module App.Table
 
-open TanStackTable
+open Feliz.TanStack.Table
 open Feliz
 
 type Person = {

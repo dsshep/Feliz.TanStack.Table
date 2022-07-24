@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="TanStackTable.fs" />
     <Compile Include="Table.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="App.fs" />
@@ -17,5 +16,8 @@
     <PackageReference Include="Feliz" Version="1.65.0" />
     <PackageReference Include="Feliz.ElmishComponents" Version="1.2.0" />
     <PackageReference Include="Feliz.UseElmish" Version="1.6.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Feliz.TanStack.Table\Feliz.TanStack.Table\Feliz.TanStack.Table.fsproj" />
   </ItemGroup>
 </Project>

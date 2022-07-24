@@ -1,7 +1,7 @@
 ﻿module Main
 
 open App.Table
-open TanStackTable
+open Feliz.TanStack.Table
 open Elmish
 open Feliz
 

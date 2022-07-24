@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Types.fs" />
+        <Compile Include="TanStackTable.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Feliz" Version="1.65.0" />
+    </ItemGroup>
+
+</Project>
