@@ -19,6 +19,7 @@
     <PackageReference Include="Feliz.UseElmish" Version="1.6.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Feliz.TanStack.Table\Feliz.TanStack.Table.fsproj" />
     <ProjectReference Include="Feliz.TanStack.Table\Feliz.TanStack.Table\Feliz.TanStack.Table.fsproj" />
   </ItemGroup>
 </Project>
