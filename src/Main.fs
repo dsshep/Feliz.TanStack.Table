@@ -4,7 +4,6 @@ open App.Table
 open TanStackTable
 open Elmish
 open Feliz
-open Feliz.UseElmish
 
 type State = {
     Count: int

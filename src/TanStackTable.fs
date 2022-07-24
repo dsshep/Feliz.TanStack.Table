@@ -29,11 +29,13 @@ type Context<'T> = interface end
 type ColumnDefOption<'T> =
     | Id of string
     | AccessorKey of string
+    | AccessorFn of ('T -> string)
     | Header of string
     | HeaderFn of (HeaderFnProps<'T> -> obj)
     | Footer of string
     | FooterFn of (HeaderFnProps<'T> -> obj)
     | Cell of (CellContext<'T> -> ReactElement)
+    | Columns of ColumnDefOption<'T> list list
 
 type CellContext<'T> =
     inherit Context<'T>
@@ -144,7 +146,7 @@ type Table<'T> =
     | Cell of (CellContext<'T> -> ReactElement)
 *)
 
-let private nativeColumnDefs (columnDefs: ColumnDefOption<'T> list list) =
+let rec private nativeColumnDefs (columnDefs: ColumnDefOption<'T> list list) =
     columnDefs
     |> Seq.map (fun colDef ->
         createObj [
@@ -152,11 +154,13 @@ let private nativeColumnDefs (columnDefs: ColumnDefOption<'T> list list) =
                 match option with
                 | Id s -> "id" ==> s
                 | AccessorKey s -> "accessorKey" ==> s
+                | AccessorFn f -> "accessorFn" ==> f
                 | Header s -> "header" ==> s
                 | Footer s -> "footer" ==> s
                 | HeaderFn f -> "header" ==> f
                 | FooterFn f -> "footer" ==> f
                 | Cell f -> "cell" ==> f
+                | Columns def -> "columns" ==> (nativeColumnDefs def)
         ])
     |> Seq.toArray
 

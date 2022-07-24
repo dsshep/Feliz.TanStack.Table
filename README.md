@@ -1,2 +1,2 @@
 # Feliz.TanStack.Table
-Felix indings for TanStack Table
+Feliz indings for TanStack Table
