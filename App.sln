@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "App", "./src/App.fsproj", "{D5961D0D-28D7-42F1-8D50-BE1079891D28}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{447367B2-23AD-48DD-A412-C8D1CCB5022D}"
+	ProjectSection(SolutionItems) = preProject
+		package.json = package.json
+		webpack.config.js = webpack.config.js
+		public\Index.html = public\Index.html
+		tests\public\Index.html = tests\public\Index.html
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "App.Tests", "tests\App.Tests.fsproj", "{901777F2-4A7E-43E4-9866-87C4F06BDB44}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D5961D0D-28D7-42F1-8D50-BE1079891D28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5961D0D-28D7-42F1-8D50-BE1079891D28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5961D0D-28D7-42F1-8D50-BE1079891D28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5961D0D-28D7-42F1-8D50-BE1079891D28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{901777F2-4A7E-43E4-9866-87C4F06BDB44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{901777F2-4A7E-43E4-9866-87C4F06BDB44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{901777F2-4A7E-43E4-9866-87C4F06BDB44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{901777F2-4A7E-43E4-9866-87C4F06BDB44}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2CDB2107-07C1-4926-8B77-983EB9FA63CE}
+	EndGlobalSection
+EndGlobal

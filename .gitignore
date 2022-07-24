@@ -167,6 +167,8 @@ $RECYCLE.BIN/
 # Exclude F# project specific directories and files
 # ===================================================
 
+*.fs.js*
+
 # NuGet Packages Directory
 packages/
 
