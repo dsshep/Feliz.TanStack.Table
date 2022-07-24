@@ -14,5 +14,4 @@
     <PackageReference Include="Fake.DotNet.Cli" Version="5.22.0" />
     <PackageReference Include="Fake.IO.FileSystem" Version="5.22.0" />
   </ItemGroup>
-  <Import Project=".paket\Paket.Restore.targets" />
 </Project>
