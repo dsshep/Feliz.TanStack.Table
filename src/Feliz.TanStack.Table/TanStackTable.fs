@@ -33,16 +33,7 @@ module rec Table =
         |> Seq.toArray
 
     [<ReactComponent>]
-    let createTableComponent (data: 'T list) (columnDefs: ColumnDefOption<'T> list list) : Table<'T> =
-        let columns = nativeColumnDefs columnDefs
-        
-        let tanStackTableComponent =
-            useReactTable({| data = data; columns = columns; getCoreRowModel = coreRowModel |})    
-        
-        tanStackTableComponent
-
-    [<ReactComponent>]
-    let createElmishTable<'T> (data: 'T list) (columnDefs: ColumnDefOption<'T> list list) (render: Table<'T> -> ReactElement) : ReactElement =
+    let createTanStackTable<'T> (data: 'T list) (columnDefs: ColumnDefOption<'T> list list) (render: Table<'T> -> ReactElement) : ReactElement =
         let columns = nativeColumnDefs columnDefs
         
         let options = {| data = (data |> Array.ofList)

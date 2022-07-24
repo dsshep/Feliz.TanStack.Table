@@ -13,7 +13,6 @@ module rec Types =
 
     type Context<'T> = interface end
 
-    /// https://stackoverflow.com/questions/45465887/how-to-write-fable-bindings-for-react-component-library
     type ColumnDefOption<'T> =
         | Id of string
         | AccessorKey of string

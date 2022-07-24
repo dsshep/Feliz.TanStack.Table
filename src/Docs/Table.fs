@@ -64,4 +64,4 @@ let columnDef: ColumnDefOption<Person> list list = [
 ]
 
 let rec createTable(render) =
-  createElmishTable defaultData columnDef render
+  createTanStackTable defaultData columnDef render
