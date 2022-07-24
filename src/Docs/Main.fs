@@ -1,6 +1,6 @@
 ﻿module Main
 
-open App.Table
+open Table
 open Feliz.TanStack.Table
 open Elmish
 open Feliz

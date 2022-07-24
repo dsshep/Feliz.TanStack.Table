@@ -1,4 +1,4 @@
-module App.Table
+module Table
 
 open Feliz.TanStack.Table
 open Feliz

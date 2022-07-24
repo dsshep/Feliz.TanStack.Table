@@ -10,15 +10,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Elmish" Version="3.1.0" />
-    <PackageReference Include="Fable.Browser.Dom" Version="2.10.0" />
     <PackageReference Include="Fable.Core" Version="3.7.1" />
     <PackageReference Include="Fable.Elmish" Version="3.1.0" />
     <PackageReference Include="Fable.Elmish.HMR" Version="5.2.0" />
     <PackageReference Include="Feliz" Version="1.65.0" />
-    <PackageReference Include="Feliz.ElmishComponents" Version="1.2.0" />
-    <PackageReference Include="Feliz.UseElmish" Version="1.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Feliz.TanStack.Table\Feliz.TanStack.Table.fsproj" />
+    <ProjectReference Include="../Feliz.TanStack.Table/Feliz.TanStack.Table.fsproj" />
   </ItemGroup>
 </Project>

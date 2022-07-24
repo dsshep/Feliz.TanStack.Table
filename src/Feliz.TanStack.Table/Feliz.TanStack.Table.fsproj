@@ -1,7 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageId>Feliz.TanStack.Table</PackageId>
+        <Description>Feliz bindings for TanStack Table library</Description>
+        <RepositoryUrl>https://github.com/dsshep/Feliz.TanStack.Table</RepositoryUrl>
+        <PackageProjectUrl>https://dsshep.github.io/Feliz.TanStack.Table</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/dsshep/Feliz.TanStack.Table/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageIconUrl></PackageIconUrl>
+        <PackageTags>fsharp;fable;tanstack;feliz;table</PackageTags>
+        <Authors>David Shepherd</Authors>
+        <Version>0.0.1</Version>
+        <PackageReleaseNotes>Toast added</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
