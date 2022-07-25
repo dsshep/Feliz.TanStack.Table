@@ -1,7 +1,6 @@
 module Table
 
 open Feliz.TanStack.Table
-open Feliz.TanStack.Table.Elmish
 open Feliz
 
 type Link = {
