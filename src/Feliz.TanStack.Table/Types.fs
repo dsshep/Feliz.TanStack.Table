@@ -1,14 +1,13 @@
 ﻿namespace Feliz.TanStack.Table
 
+open Fable.Core
+
 [<AutoOpen>]
 module rec Types =  
         
     open System.Collections.Generic
     open Feliz
 
-    type TanStackTable =
-        inherit ReactElement
-    
     type HeaderFnProps<'T> =
         abstract member table: Table<'T>
         abstract member header: Header<'T>
@@ -139,3 +138,89 @@ module rec Types =
         abstract member getFooterGroups: unit -> HeaderGroup<'T> list
         abstract member getFlatHeaders: unit -> Header<'T> list
         abstract member getLeafHeaders: unit -> Header<'T> list
+   
+    type FilterFn<'T> = Row<'T> * string * obj -> bool
+    
+    [<Erase>]
+    type FilterFnOption<'T> =
+        | String of string
+        | FilterFn of FilterFn<'T>
+    
+    type FiltersOption<'T> =
+        abstract member enableFilters: bool;
+        abstract member manualFiltering: bool;
+        abstract member filterFromLeafRows: bool;
+        abstract member getFilteredRowModel: table: Table<obj> -> unit -> RowModel<obj>;
+        abstract member onColumnFiltersChange: (ColumnFilter[] -> ColumnFilter[]) -> unit;
+        abstract member enableColumnFilters: bool;
+        abstract member globalFilterFn: FilterFnOption<'T>;
+        abstract member onGlobalFilterChange: (obj -> obj) -> unit;
+        abstract member enableGlobalFilter: bool;
+        abstract member getColumnCanGlobalFilter: column: Column<'T> -> bool;
+        abstract member getFacetedRowModel: table: Table<'T> * columnId: string -> unit -> RowModel<'T>;
+        //abstract member getFacetedUniqueValues: (table: Table<TData>, columnId: string) => () => Map<any, number>;
+        //abstract member getFacetedMinMaxValues: (table: Table<TData>, columnId: string) => () => undefined | [number, number];
+    
+    type TableOptionsResolved<'T> =
+        inherit CoreOptions<'T>
+        abstract member onColumnVisibilityChange: (Dictionary<string, bool> -> Dictionary<string, bool>) -> unit 
+        abstract member enableHiding: bool with get, set
+        abstract member onColumnOrderChange: (string[] -> string[]) -> unit
+        abstract member onColumnPinningChange: (obj -> obj)  -> unit
+        abstract member enablePinning: bool with get, set
+    
+    type ColumnPinningState =
+        abstract member left: string[]
+        abstract member right: string[]
+    
+    type ColumnFilter =
+        abstract member id: string
+        abstract member value: string
+    
+    type ColumnSort =
+        abstract member id: string
+        abstract member desc: bool
+    
+    type ColumnSizingInfoState =
+        abstract member startOffset: int
+        abstract member startSize: int
+        abstract member deltaOffset: int
+        abstract member deltaPercentage: int
+        abstract member isResizingColumn: string
+        abstract member columnSizingStart: (string * int)[]
+    
+    type PaginationState =
+        abstract member pageIndex: int
+        abstract member pageSize: int
+    
+    type CoreOptions<'T> =
+        abstract member data: 'T[];
+        abstract member onStateChange: updater: ('T -> 'T) -> unit;
+        abstract member debugAll: bool;
+        abstract member debugTable: bool;
+        abstract member debugHeaders: bool;
+        abstract member debugColumns: bool;
+        abstract member debugRows: bool;
+        abstract member initialState: TableState<'T>;
+        abstract member autoResetAll: bool;
+        abstract member getCoreRowModel: table: Table<'T> -> unit -> obj;
+        abstract member getSubRows: originalRow: 'T * index: int -> 'T[] option;
+        abstract member getRowId: originalRow: 'T * index: int * parent: Row<'T> -> string;
+        abstract member columns: ColumnDef<'T>[];
+        abstract member defaultColumn: ColumnDef<'T>;
+        abstract member renderFallbackValue: obj
+    
+    type TableState<'T> =
+        inherit CoreOptions<'T>
+        abstract member columnVisibility: Dictionary<string, bool>
+        abstract member columnOrder: string[]
+        abstract member columnPinning: ColumnPinningState
+        abstract member columnFilters: ColumnFilter[]
+        abstract member globalFilter: obj
+        abstract member sorting: ColumnSort[]
+        abstract member expanded: Dictionary<string, bool>
+        abstract member grouping: string[]
+        abstract member columnSizing: Dictionary<string, int>
+        abstract member columnSizingInfo: ColumnSizingInfoState
+        abstract member pagination: PaginationState
+        abstract member rowSelection: Dictionary<string, bool>

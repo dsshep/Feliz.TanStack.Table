@@ -23,7 +23,7 @@ let update (msg : Msg) (state : State) =
     | UrlChanged page -> { state with Page = page }, Cmd.none
 
 let view (state : State) (dispatch : Msg -> unit) =
-    let tableElement = createTable(fun table ->
+    let renderTable = fun (table: Table<Link>) ->
         let thead =
             Html.thead [
                 for headerGroup in table.getHeaderGroups() do
@@ -66,7 +66,8 @@ let view (state : State) (dispatch : Msg -> unit) =
                 ]
             ]
         ]
-        )
+    
+    let tableElement = createTable(renderTable)
        
     let subTable =
         match state.Page with

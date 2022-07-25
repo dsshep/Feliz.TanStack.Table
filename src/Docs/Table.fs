@@ -1,6 +1,7 @@
 module Table
 
 open Feliz.TanStack.Table
+open Feliz.TanStack.Table.Elmish
 open Feliz
 
 type Link = {
@@ -36,5 +37,5 @@ let columnDef: ColumnDefOption<Link> list list = [
     columnDef.cell (fun info -> info.getValue()) ]
 ]
 
-let rec createTable(render) =
+let rec createTable render =
   createTanStackTable links columnDef render

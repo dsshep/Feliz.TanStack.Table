@@ -1,7 +1,5 @@
 namespace Feliz.TanStack.Table
 
-open Feliz.TanStack.Table
-
 [<AutoOpen>]
 module Table = 
 
@@ -16,7 +14,7 @@ module Table =
     let innerFlexRender<'T>(comp: obj, context: Context<'T>) = jsNative
     let private coreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/react-table"
 
-    let rec private nativeColumnDefs (columnDefs: ColumnDefOption<'T> list list) =
+    let rec internal nativeColumnDefs (columnDefs: ColumnDefOption<'T> list list) =
         columnDefs
         |> Seq.map (fun colDef ->
             createObj [
@@ -50,4 +48,3 @@ module Table =
             prop.children [
                 innerFlexRender(comp, context)
             ]
-        
