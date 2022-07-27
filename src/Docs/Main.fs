@@ -9,18 +9,24 @@ open Router
 
 type State = {
     Page: Page
+    ElmishState: Examples.Elmish.State
 }
 
 type Msg = 
     | UrlChanged of Page
+    | ElmishMsg of Examples.Elmish.Msg
 
 let init() =
     let nextPage = Router.currentUrl() |> Page.parseUrlSegment
-    { Page = nextPage }, Cmd.none
+    let elmishState, elmishCmd = Examples.Elmish.init()
+    { Page = nextPage; ElmishState = elmishState }, Cmd.map ElmishMsg elmishCmd
 
 let update (msg : Msg) (state : State) = 
     match msg with 
     | UrlChanged page -> { state with Page = page }, Cmd.none
+    | ElmishMsg elmMsg ->
+        let update, cmd = Examples.Elmish.update state.ElmishState elmMsg
+        { state with ElmishState = update }, Cmd.map ElmishMsg cmd
 
 let view (state : State) (dispatch : Msg -> unit) =
     let renderTable = fun (table: Table<Link>) ->
@@ -81,5 +87,6 @@ let view (state : State) (dispatch : Msg -> unit) =
         router.children [
             tableElement
             subTable
+            Html.div [ prop.children (Examples.Elmish.view state.ElmishState (ElmishMsg >> dispatch)) ]
         ]
     ]

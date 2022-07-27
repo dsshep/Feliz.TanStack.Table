@@ -1,2 +1,2 @@
 # Feliz.TanStack.Table
-Feliz bindings for TanStack Table
+Very much WIP Feliz bindings for TanStack Table

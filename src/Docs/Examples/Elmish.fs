@@ -1,7 +1,9 @@
-module App.Examples.Basic
+module App.Examples.Elmish
 
-open Feliz.TanStack.Table
+open Elmish
+open Fable.Core.JS
 open Feliz
+open Feliz.TanStack.Table
 
 type Person = {
   Firstname: string
@@ -12,7 +14,7 @@ type Person = {
   Progress: int
 }
 
-let defaultData: Person list = [
+let defaultData: Person[] = [|
     {
       Firstname = "tanner"
       Lastname = "linsley"
@@ -37,7 +39,7 @@ let defaultData: Person list = [
       Status= "Complicated"
       Progress= 10
     }
-]
+|]
 
 let columnDef: ColumnDefOption<Person> list list = [
     [ columnDef.id "firstname"
@@ -63,11 +65,33 @@ let columnDef: ColumnDefOption<Person> list list = [
       columnDef.footer (fun info -> info.column.id) ]
 ]
 
-let rec createTable () =
-  Table.Create(defaultData, columnDef, (fun table ->
+type State = {
+    TableState : Table<Person>
+}
+
+type Msg =
+    | StateChange of ElmishTable.Msg
+    
+let init () =
+    let tableProps = [
+        tableProps.data defaultData
+        tableProps.columns columnDef ]
+    
+    let table = ElmishTable.init<Person> tableProps
+    { TableState = table }, Cmd.none
+
+let update (state: State) (msg: Msg) =
+    console.log("State Update")
+    match msg with
+    | StateChange msg ->
+        let tableState, tableCmd = ElmishTable.update state.TableState msg
+        { state with TableState = tableState }, Cmd.map StateChange tableCmd
+    
+let view (state: State) (dispatch: Msg -> unit) =
+    let table = ElmishTable.render state.TableState (StateChange >> dispatch) (
         let thead =
             Html.thead [
-                for headerGroup in table.getHeaderGroups() do
+                for headerGroup in state.TableState.getHeaderGroups() do
                      Html.tr [
                          prop.key headerGroup.id
                          prop.children [
@@ -79,10 +103,10 @@ let rec createTable () =
                          ]
                      ]
             ]
-        
+            
         let tbody =
             Html.tbody [
-                for row in table.getRowModel().rows do
+                for row in state.TableState.getRowModel().rows do
                     Html.tr [
                         prop.key row.id
                         prop.children [
@@ -96,7 +120,7 @@ let rec createTable () =
             
         let tfoot =
             Html.tfoot [
-                for footerGroup in table.getFooterGroups() do
+                for footerGroup in state.TableState.getFooterGroups() do
                     Html.tr [
                         prop.key footerGroup.id
                         prop.children [
@@ -122,5 +146,14 @@ let rec createTable () =
                     ]
                 ]
             ]
+        ])
+
+    Html.div [
+        prop.children [
+            Html.button [
+                prop.text "Click me"
+            ]
+            table
         ]
-        ))
+    ]
+    

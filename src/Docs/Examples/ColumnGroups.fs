@@ -67,7 +67,7 @@ let columns: ColumnDefOption<Person> list list = [
 ]
 
 let rec createTable () =
-  createTanStackTable defaultData columns (fun table ->
+    Table.Create(defaultData, columns, (fun table ->
         let thead =
             Html.thead [
                 for headerGroup in table.getHeaderGroups() do
@@ -130,5 +130,5 @@ let rec createTable () =
                 ]
             ]
         ]
-        )
+        ))
 

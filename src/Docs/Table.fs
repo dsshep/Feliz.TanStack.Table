@@ -22,19 +22,19 @@ let links: Link list = [
 ]
 
 let columnDef: ColumnDefOption<Link> list list = [
-  [ columnDef.id "Name"
-    columnDef.accessorKey "Name"
-    columnDef.cell (fun info -> info.getValue()) ]
-  [ columnDef.id "Url"
-    columnDef.accessorKey "Url"
-    columnDef.cell (fun info -> Html.a [
-      prop.href (info.getValue<string>())
-      prop.text (info.getValue<string>())
-    ]) ]
-  [ columnDef.id "Description"
-    columnDef.accessorKey "Description"
-    columnDef.cell (fun info -> info.getValue()) ]
+    [ columnDef.id "Name"
+      columnDef.accessorKey "Name"
+      columnDef.cell (fun info -> info.getValue()) ]
+    [ columnDef.id "Url"
+      columnDef.accessorKey "Url"
+      columnDef.cell (fun info -> Html.a [
+        prop.href (info.getValue<string>())
+        prop.text (info.getValue<string>())
+      ]) ]
+    [ columnDef.id "Description"
+      columnDef.accessorKey "Description"
+      columnDef.cell (fun info -> info.getValue()) ]
 ]
 
 let rec createTable render =
-  createTanStackTable links columnDef render
+  Table.Create(links, columnDef, render)

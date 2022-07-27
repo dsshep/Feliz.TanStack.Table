@@ -66,14 +66,23 @@ module rec Types =
         abstract member getAllCells: unit -> Cell<'T> list
         abstract member getVisibleCells: unit -> Cell<'T> list
 
-    type Column<'T> =
+    type CoreColumn<'T> =
+        
         abstract member id: string
         abstract member depth: int
+        abstract member accessorFn: obj
         abstract member columnDef: ColumnDef<'T>
         abstract member columns: ColumnDef<'T> list
         abstract member parent: Column<'T>
         abstract member getFlatColumns: unit -> Column<'T> list
         abstract member getLeafColumns: unit -> Column<'T> list
+    
+    type VisibilityColumn<'T> =
+        abstract member getToggleVisibilityHandler: unit -> event: obj -> unit
+    
+    type Column<'T> =
+        inherit CoreColumn<'T>
+        inherit VisibilityColumn<'T>
 
     type CellProps<'T> =
         abstract member table: Table<'T>
@@ -139,6 +148,10 @@ module rec Types =
         abstract member getFlatHeaders: unit -> Header<'T> list
         abstract member getLeafHeaders: unit -> Header<'T> list
    
+    type ReactTable<'T> =
+        inherit Table<'T>
+        inherit ReactElement
+    
     type FilterFn<'T> = Row<'T> * string * obj -> bool
     
     [<Erase>]
@@ -161,11 +174,17 @@ module rec Types =
         //abstract member getFacetedUniqueValues: (table: Table<TData>, columnId: string) => () => Map<any, number>;
         //abstract member getFacetedMinMaxValues: (table: Table<TData>, columnId: string) => () => undefined | [number, number];
     
+    type TableOptions<'T> =
+        inherit CoreOptions<'T>
+        abstract member state: TableState<'T> with get, set
+    
     type TableOptionsResolved<'T> =
         inherit CoreOptions<'T>
-        abstract member onColumnVisibilityChange: (Dictionary<string, bool> -> Dictionary<string, bool>) -> unit 
+        abstract member onColumnVisibilityChange: (Dictionary<string, bool> -> Dictionary<string, bool>) -> unit
+        abstract member onColumnVisibilityChange: (Dictionary<string, bool> -> unit) -> unit
         abstract member enableHiding: bool with get, set
         abstract member onColumnOrderChange: (string[] -> string[]) -> unit
+        abstract member onColumnOrderChange: (string[] -> unit) -> unit
         abstract member onColumnPinningChange: (obj -> obj)  -> unit
         abstract member enablePinning: bool with get, set
     
@@ -193,9 +212,13 @@ module rec Types =
         abstract member pageIndex: int
         abstract member pageSize: int
     
+    type RowSelectionTableState =
+        abstract member rowSelection: Dictionary<string, bool>
+    
     type CoreOptions<'T> =
         abstract member data: 'T[];
-        abstract member onStateChange: updater: ('T -> 'T) -> unit;
+        abstract member onStateChange: updater: (TableState<'T> -> TableState<'T>) -> unit
+        abstract member onStateChange: updater: (TableState<'T> -> unit) -> unit;
         abstract member debugAll: bool;
         abstract member debugTable: bool;
         abstract member debugHeaders: bool;
@@ -212,6 +235,7 @@ module rec Types =
     
     type TableState<'T> =
         inherit CoreOptions<'T>
+        inherit RowSelectionTableState
         abstract member columnVisibility: Dictionary<string, bool>
         abstract member columnOrder: string[]
         abstract member columnPinning: ColumnPinningState
