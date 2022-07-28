@@ -26,3 +26,11 @@ module internal Core =
             
             table
         
+    let internal updateStateFunctionCall
+        (fn: obj -> unit)
+        (table : Table<'T>) : Table<'T> =
+            fn table._obj
+            table._obj?setOptions(fun prev ->
+                setStateChange prev table._obj?options (fun () -> ()))
+            table
+        

@@ -10,16 +10,23 @@ open Router
 type State = {
     Page: Page
     ElmishState: Examples.Elmish.State
+    OrderingState: Examples.Ordering.State
 }
 
 type Msg = 
     | UrlChanged of Page
     | ElmishMsg of Examples.Elmish.Msg
+    | OrderingMsg of Examples.Ordering.Msg
 
 let init() =
     let nextPage = Router.currentUrl() |> Page.parseUrlSegment
     let elmishState, elmishCmd = Examples.Elmish.init()
-    { Page = nextPage; ElmishState = elmishState }, Cmd.map ElmishMsg elmishCmd
+    let orderingState, orderingCmd = Examples.Ordering.init()
+    { Page = nextPage
+      ElmishState = elmishState
+      OrderingState = orderingState },
+    Cmd.batch [ Cmd.map ElmishMsg elmishCmd
+                Cmd.map OrderingMsg orderingCmd ]
 
 let update (msg : Msg) (state : State) = 
     match msg with 
@@ -27,6 +34,9 @@ let update (msg : Msg) (state : State) =
     | ElmishMsg elmMsg ->
         let update, cmd = Examples.Elmish.update state.ElmishState elmMsg
         { state with ElmishState = update }, Cmd.map ElmishMsg cmd
+    | OrderingMsg msg ->
+        let update, cmd = Examples.Ordering.update state.OrderingState msg
+        { state with OrderingState = update }, Cmd.map OrderingMsg cmd
 
 let view (state : State) (dispatch : Msg -> unit) =
 //    let renderTable = fun (table: Table<Link>) ->
@@ -88,5 +98,6 @@ let view (state : State) (dispatch : Msg -> unit) =
             //tableElement
             subTable
             Html.div [ prop.children (Examples.Elmish.view state.ElmishState (ElmishMsg >> dispatch)) ]
+            Html.div [ prop.children (Examples.Ordering.view state.OrderingState (OrderingMsg >> dispatch)) ]
         ]
     ]

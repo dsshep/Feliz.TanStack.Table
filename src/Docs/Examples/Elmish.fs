@@ -91,7 +91,6 @@ let init () =
 let update (state: State) (msg: Msg) =
     match msg with
     | ButtonClicked ->
-        debugger()
         { state with
             Table = Table.setColumnVisibility "firstname" (not state.HideColumn) state.Table
             HideColumn = not state.HideColumn }, Cmd.none

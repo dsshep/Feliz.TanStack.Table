@@ -18,10 +18,17 @@
     <ItemGroup>
         <Compile Include="Types.fs" />
         <Compile Include="Core.fs" />
+        <Compile Include="Table.fs" />
         <Compile Include="Visibility.fs" />
-        <Compile Include="TanStackTable.fs" />
+        <Compile Include="Ordering.fs" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <NpmDependencies>
+            <NpmPackage Name="@tanstack/react-table" Version="gt 8.0.0 lt 9.0.0" ResolutionStrategy="Max" />
+        </NpmDependencies>
+    </PropertyGroup>
+    
     <ItemGroup>
       <PackageReference Include="Feliz" Version="1.65.0" />
     </ItemGroup>

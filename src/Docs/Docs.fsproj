@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Examples\Elmish.fs" />
+    <Compile Include="Examples\Ordering.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="Table.fs" />
     <Compile Include="Main.fs" />
