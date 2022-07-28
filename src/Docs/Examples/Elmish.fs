@@ -41,29 +41,36 @@ let defaultData: Person[] = [|
     }
 |]
 
-let columnDef: ColumnDefOptionProp<Person> list list = [
-    [ columnDef.id "firstname"
-      columnDef.accessorKey "Firstname"
-      columnDef.cell (fun info -> info.getValue()) ]
-    [ columnDef.id "lastName"
-      columnDef.accessorKey (nameof Unchecked.defaultof<Person>.Lastname)
-      columnDef.cell (fun info -> Html.i [ prop.text (info.getValue<int>()) ])
-      columnDef.header (fun _ -> Html.span [ prop.text "Last Name" ])
-      columnDef.footer (fun info -> info.column.id) ]
-    [ columnDef.accessorKey "Age"
-      columnDef.header (fun _ -> "Age")
-      columnDef.cell (fun info -> info.renderValue())
-      columnDef.footer (fun info -> info.column.id) ]
-    [ columnDef.accessorKey "Visits"
-      columnDef.header (fun _ -> Html.span [ prop.text "Visits" ])
-      columnDef.footer (fun info -> info.column.id) ]
-    [ columnDef.accessorKey "Status"
-      columnDef.header "Status"
-      columnDef.footer (fun info -> info.column.id) ]
-    [ columnDef.accessorKey "Progress"
-      columnDef.header "Profile Progress"
-      columnDef.footer (fun info -> info.column.id) ]
-]
+let columnDef =
+    ColumnHelper.createColumnHelper<Person> [
+        ColumnHelper.accessor (
+          "firstname",
+          [ columnDef.accessorKey "Firstname"
+            columnDef.cell (fun info -> info.getValue()) ])
+        ColumnHelper.accessor (
+           (fun p -> p.Lastname),
+           [ columnDef.id "lastName"
+             columnDef.cell (fun info -> Html.i [ prop.text (info.getValue<int>()) ])
+             columnDef.header (fun _ -> Html.span [ prop.text "Last Name" ])
+             columnDef.footer (fun info -> info.column.id) ])
+        ColumnHelper.accessor (
+          "Age",
+          [ columnDef.header (fun _ -> "Age")
+            columnDef.cell (fun info -> info.renderValue())
+            columnDef.footer (fun info -> info.column.id) ])
+        ColumnHelper.accessor (
+          "Visits",
+          [ columnDef.header (fun _ -> Html.span [ prop.text "Visits" ])
+            columnDef.footer (fun info -> info.column.id) ])
+        ColumnHelper.accessor (
+          "Status",
+          [ columnDef.header "Status"
+            columnDef.footer (fun info -> info.column.id) ])
+        ColumnHelper.accessor (
+          "Progress",
+          [ columnDef.header "Profile Progress"
+            columnDef.footer (fun info -> info.column.id)])
+    ]
 
 type State = {
     Table : Table<Person>

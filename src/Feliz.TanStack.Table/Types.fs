@@ -3,6 +3,7 @@
 open Fable.Core
 open System.Collections.Generic
 open Feliz
+open Feliz.TanStack.Table
 
 //open Feliz.TanStack.Table
 
@@ -27,6 +28,14 @@ module rec Types =
         | FooterFn of obj
         | Cell of (CellContextProp<'T> -> ReactElement)
         | Columns of ColumnDefOptionProp<'T> list list
+        
+    type ColumnHelper =
+        static member accessor (accessor: string, columnDefs: ColumnDefOptionProp<_> list) =
+            columnDef.accessorKey accessor :: columnDefs
+        static member accessor (accessorFn: 'T -> string, columnDefs: ColumnDefOptionProp<_> list) =
+            columnDef.accessorFn accessorFn :: columnDefs
+        static member createColumnHelper<'T> (columnDefs: ColumnDefOptionProp<'T> list list) =
+            columnDefs
         
     type columnDef =
         static member id s = Id s

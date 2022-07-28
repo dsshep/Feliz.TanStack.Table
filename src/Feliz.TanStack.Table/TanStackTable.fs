@@ -18,10 +18,6 @@ module rec Table =
     let private spreadOptions prev options state onStateChange = jsNative
     [<Emit("(typeof $0 === 'function')")>]
     let private isJsFunc o = jsNative
-    [<Emit("{ $0: $1 }")>]
-    let private createRecord (s) (v) = jsNative
-    [<Emit("{ ...$0, ...$1 }")>]
-    let private merge a b = jsNative
     
     let rec internal nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
         columnDefs
@@ -63,7 +59,6 @@ module rec Table =
         static member inline columnOrder (order: string[]) =
             prop.custom ("columnOrder", order)
     
-    //[<RequireQualifiedAccess>]
     type Table =
         static member private convertTable (dynamic : obj) (data : 'T []) : Table<'T> =
             let allColumns = dynamic?getAllColumns()
