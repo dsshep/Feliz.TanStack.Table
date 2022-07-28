@@ -1,9 +1,7 @@
 ﻿namespace Feliz.TanStack.Table
 
 open Fable.Core
-open System.Collections.Generic
 open Feliz
-open Feliz.TanStack.Table
 
 //open Feliz.TanStack.Table
 
