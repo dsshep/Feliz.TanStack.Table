@@ -17,6 +17,8 @@
 
     <ItemGroup>
         <Compile Include="Types.fs" />
+        <Compile Include="Core.fs" />
+        <Compile Include="Visibility.fs" />
         <Compile Include="TanStackTable.fs" />
     </ItemGroup>
 

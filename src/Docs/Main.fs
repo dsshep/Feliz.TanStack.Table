@@ -29,63 +29,63 @@ let update (msg : Msg) (state : State) =
         { state with ElmishState = update }, Cmd.map ElmishMsg cmd
 
 let view (state : State) (dispatch : Msg -> unit) =
-    let renderTable = fun (table: Table<Link>) ->
-        let thead =
-            Html.thead [
-                for headerGroup in table.getHeaderGroups() do
-                     Html.tr [
-                         prop.key headerGroup.id
-                         prop.children [
-                             for header in headerGroup.headers do
-                                 Html.th [
-                                     prop.key header.id
-                                     prop.flexRender (header.column.columnDef.header, header.getContext())
-                                 ]
-                         ]
-                     ]
-            ]
-        
-        let tbody =
-            Html.tbody [
-                for row in table.getRowModel().rows do
-                    Html.tr [
-                        prop.key row.id
-                        prop.children [
-                            for cell in row.getVisibleCells() do
-                                Html.td [
-                                    prop.flexRender(cell.column.columnDef.cell, cell.getContext())
-                                ]
-                        ]
-                    ]
-            ]
-        
-        Html.div [
-            prop.classes [
-                "p-2"
-            ]
-            prop.children [
-                Html.table [
-                    prop.children [
-                        thead
-                        tbody
-                    ]
-                ]
-            ]
-        ]
+//    let renderTable = fun (table: Table<Link>) ->
+//        let thead =
+//            Html.thead [
+//                for headerGroup in table.getHeaderGroups() do
+//                     Html.tr [
+//                         prop.key headerGroup.id
+//                         prop.children [
+//                             for header in headerGroup.headers do
+//                                 Html.th [
+//                                     prop.key header.id
+//                                     prop.flexRender (header.column.columnDef.header, header.getContext())
+//                                 ]
+//                         ]
+//                     ]
+//            ]
+//        
+//        let tbody =
+//            Html.tbody [
+//                for row in table.getRowModel().rows do
+//                    Html.tr [
+//                        prop.key row.id
+//                        prop.children [
+//                            for cell in row.getVisibleCells() do
+//                                Html.td [
+//                                    prop.flexRender(cell.column.columnDef.cell, cell.getContext())
+//                                ]
+//                        ]
+//                    ]
+//            ]
+//        
+//        Html.div [
+//            prop.classes [
+//                "p-2"
+//            ]
+//            prop.children [
+//                Html.table [
+//                    prop.children [
+//                        thead
+//                        tbody
+//                    ]
+//                ]
+//            ]
+//        ]
     
-    let tableElement = createTable(renderTable)
+    //let tableElement = createTable(renderTable)
        
     let subTable =
         match state.Page with
         | Home -> Html.p [ prop.text "Home" ]
-        | Basic -> Examples.Basic.createTable()
-        | ColumnGroups -> Examples.ColumnGroups.createTable()
+        //| Basic -> Examples.Basic.createTable()
+        //| ColumnGroups -> Examples.ColumnGroups.createTable()
        
     React.router [
         router.hashMode
         router.onUrlChanged (Page.parseUrlSegment >> UrlChanged >> dispatch)
         router.children [
-            tableElement
+            //tableElement
             subTable
             Html.div [ prop.children (Examples.Elmish.view state.ElmishState (ElmishMsg >> dispatch)) ]
         ]

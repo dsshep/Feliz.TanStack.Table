@@ -21,7 +21,7 @@ let links: Link list = [
     Description = "Column group example from the TanStack docs." }
 ]
 
-let columnDef: ColumnDefOption<Link> list list = [
+let columnDef: ColumnDefOptionProp<Link> list list = [
     [ columnDef.id "Name"
       columnDef.accessorKey "Name"
       columnDef.cell (fun info -> info.getValue()) ]
@@ -36,5 +36,5 @@ let columnDef: ColumnDefOption<Link> list list = [
       columnDef.cell (fun info -> info.getValue()) ]
 ]
 
-let rec createTable render =
-  Table.Create(links, columnDef, render)
+//let rec createTable render =
+//  Table.Create(links, columnDef, render)

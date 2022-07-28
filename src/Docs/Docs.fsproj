@@ -4,8 +4,6 @@
     <RootNamespace>App</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Examples\Basic.fs" />
-    <Compile Include="Examples\ColumnGroups.fs" />
     <Compile Include="Examples\Elmish.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="Table.fs" />

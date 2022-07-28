@@ -41,7 +41,7 @@ let defaultData: Person[] = [|
     }
 |]
 
-let columnDef: ColumnDefOption<Person> list list = [
+let columnDef: ColumnDefOptionProp<Person> list list = [
     [ columnDef.id "firstname"
       columnDef.accessorKey "Firstname"
       columnDef.cell (fun info -> info.getValue()) ]
@@ -66,39 +66,43 @@ let columnDef: ColumnDefOption<Person> list list = [
 ]
 
 type State = {
-    TableState : Table<Person>
+    Table : Table<Person>
+    HideColumn: bool
 }
 
 type Msg =
-    | StateChange of ElmishTable.Msg
+    | ButtonClicked
     
 let init () =
     let tableProps = [
         tableProps.data defaultData
         tableProps.columns columnDef ]
     
-    let table = ElmishTable.init<Person> tableProps
-    { TableState = table }, Cmd.none
+    let table = Table.init<Person> tableProps
+    { Table = table; HideColumn = false }, Cmd.none
 
 let update (state: State) (msg: Msg) =
-    console.log("State Update")
     match msg with
-    | StateChange msg ->
-        let tableState, tableCmd = ElmishTable.update state.TableState msg
-        { state with TableState = tableState }, Cmd.map StateChange tableCmd
+    | ButtonClicked ->
+        debugger()
+        { state with
+            Table = Table.setColumnVisibility "firstname" (not state.HideColumn) state.Table
+            HideColumn = not state.HideColumn }, Cmd.none
     
 let view (state: State) (dispatch: Msg -> unit) =
-    let table = ElmishTable.render state.TableState (StateChange >> dispatch) (
+    let table = 
         let thead =
             Html.thead [
-                for headerGroup in state.TableState.getHeaderGroups() do
+                for headerGroup in Table.getHeaderGroups state.Table do
                      Html.tr [
-                         prop.key headerGroup.id
+                         prop.key headerGroup.Id
                          prop.children [
-                             for header in headerGroup.headers do
+                             for header in headerGroup.Headers do
                                  Html.th [
-                                     prop.key header.id
-                                     prop.flexRender (header.column.columnDef.header, header.getContext())
+                                     prop.key header.Id
+                                     prop.flexRender (
+                                         header.Column.ColumnDef.Header,
+                                         Table.getContext header)
                                  ]
                          ]
                      ]
@@ -106,13 +110,15 @@ let view (state: State) (dispatch: Msg -> unit) =
             
         let tbody =
             Html.tbody [
-                for row in state.TableState.getRowModel().rows do
+                for row in (Table.getRowModel state.Table).Rows do
                     Html.tr [
-                        prop.key row.id
+                        prop.key row.Id
                         prop.children [
-                            for cell in row.getVisibleCells() do
+                            for cell in Table.getVisibleCells row do
                                 Html.td [
-                                    prop.flexRender(cell.column.columnDef.cell, cell.getContext())
+                                    prop.flexRender(
+                                        cell.Column.ColumnDef.Cell,
+                                        Table.getContext cell)
                                 ]
                         ]
                     ]
@@ -120,14 +126,16 @@ let view (state: State) (dispatch: Msg -> unit) =
             
         let tfoot =
             Html.tfoot [
-                for footerGroup in state.TableState.getFooterGroups() do
+                for footerGroup in Table.getFooterGroups state.Table do
                     Html.tr [
-                        prop.key footerGroup.id
+                        prop.key footerGroup.Id
                         prop.children [
-                            for footer in footerGroup.headers do
+                            for footer in footerGroup.Headers do
                                 Html.th [
-                                    prop.key footer.id
-                                    prop.flexRender(footer.column.columnDef.footer, footer.getContext())
+                                    prop.key footer.Id
+                                    prop.flexRender(
+                                        footer.Column.ColumnDef.Footer,
+                                        Table.getContext footer)
                                 ]
                         ]
                     ]
@@ -146,12 +154,13 @@ let view (state: State) (dispatch: Msg -> unit) =
                     ]
                 ]
             ]
-        ])
+        ]
 
     Html.div [
         prop.children [
             Html.button [
                 prop.text "Click me"
+                prop.onClick (fun _ -> dispatch ButtonClicked)
             ]
             table
         ]
