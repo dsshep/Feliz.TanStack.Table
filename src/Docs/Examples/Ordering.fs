@@ -253,8 +253,7 @@ let update (msg: Msg) (state: State) =
     | ColumnChecked c ->
         let isVisible = Column.getIsVisible c
         let table = Table.setColumnVisibility c (not isVisible) state.Table
-        { state with
-            Table = table }, Cmd.none
+        { state with Table = table }, Cmd.none
     | Reset ->
         let table = Table.resetColumnOrder state.Table
         { state with Table = table }, Cmd.none

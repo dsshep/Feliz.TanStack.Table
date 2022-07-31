@@ -21,6 +21,12 @@ let update (msg : Msg) (state : State) =
         { state with Page = page }, Cmd.none
 
 let view (state : State) (dispatch : Msg -> unit) =
+    let colDiv e =
+        Html.div [
+            prop.className [ Bulma.Column; Bulma.IsFull ]
+            prop.children [ e ]
+        ]
+    
     let sourceLinkOpt =
         let baseUrl = "https://github.com/dsshep/Feliz.TanStack.Table/tree/main/src/Docs/Examples/"
         match state.Page with
@@ -29,12 +35,35 @@ let view (state : State) (dispatch : Msg -> unit) =
         | Groups -> Some $"{baseUrl}Groups.fs"
         | Ordering -> Some $"{baseUrl}Ordering.fs"
     
+    let sourceLink =
+        match sourceLinkOpt with
+        | None -> Html.none
+        | Some l ->
+            Html.section [
+                prop.className [ Bulma.Container; Bulma.HasBackgroundLight ]
+                prop.children [
+                    Html.div [
+                        prop.className [ Bulma.Px3; Bulma.Py2 ]
+                        prop.children [
+                            Html.p [
+                                Html.text "View the source code for this example "
+                                Html.a [
+                                    prop.text "here"
+                                    prop.href l
+                                ]
+                                Html.text "."
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+    
     let sidebar =
         Html.div [
-            prop.className [ Bulma.Tile; Bulma.Is2 ]
+            prop.className [ Bulma.Tile; Bulma.Is3 ]
             prop.children [
                 Html.aside [
-                    prop.className Bulma.Menu
+                    prop.className [ Bulma.Menu; Bulma.Pb2 ]
                     prop.children [
                         Html.ul [
                             prop.className Bulma.MenuList
@@ -63,27 +92,25 @@ let view (state : State) (dispatch : Msg -> unit) =
         
     let main =
         Html.main [
-            prop.className [ Bulma.Tile; Bulma.Is10 ]
+            prop.className [ Bulma.Tile; Bulma.Is9 ]
             prop.children [
-                match state.Page with
-                | Page.Home -> Home.view()
-                | Page.Basic -> Examples.Basic.Component()
-                | Page.Groups -> Examples.Groups.Component()
-                | Page.Ordering -> Examples.Ordering.Component()
-                
-                match sourceLinkOpt with
-                | None -> Html.none
-                | Some l ->
-                    Html.footer [
-                        Html.p [
-                            Html.text "View the source code for this example "
-                            Html.a [
-                                prop.text "here"
-                                prop.href l
-                            ]
-                            Html.text "."
-                        ]
+                Html.div [
+                    prop.className [ Bulma.Columns; Bulma.IsMultiline ]
+                    prop.children [
+                        colDiv
+                            (Html.section [
+                                prop.className Bulma.Container
+                                prop.children [
+                                    match state.Page with
+                                    | Page.Home -> Home.view()
+                                    | Page.Basic -> Examples.Basic.Component()
+                                    | Page.Groups -> Examples.Groups.Component()
+                                    | Page.Ordering -> Examples.Ordering.Component()
+                                ]
+                            ])
+                        colDiv sourceLink
                     ]
+                ]
             ]
         ]
         
