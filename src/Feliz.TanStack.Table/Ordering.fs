@@ -15,6 +15,9 @@ module Ordering =
             
             table
 
-        static member resetColumnOrder (defaultState: bool) (table : Table<'T>) : Table<'T> =
-            table._obj?resetColumnOrder(defaultState)
+        static member resetColumnOrder (table : Table<'T>) : Table<'T> =
+            table._obj?setOptions(fun prev ->
+                prev?state?columnOrder <- []
+                setStateChange prev table._obj?options (fun () -> ()))
             table
+            

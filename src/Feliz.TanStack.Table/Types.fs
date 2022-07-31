@@ -321,7 +321,6 @@ module rec Types =
     type Table<'T> = {
         _obj: obj
         Data: 'T []
-        ColumnVisibility: Map<string, bool>
     }
     
 //    type TableState<'T> =

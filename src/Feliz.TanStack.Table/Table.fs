@@ -61,11 +61,8 @@ module rec Table =
     
     type Table =
         static member private convertTable (dynamic : obj) (data : 'T []) : Table<'T> =
-            let allColumns = dynamic?getAllColumns()
-            
             { _obj = dynamic
-              Data = data
-              ColumnVisibility = allColumns |> Array.map (fun c -> (c, true)) |> Map.ofArray }
+              Data = data }
             
         static member init<'T> (options: IReactProperty list) : Table<'T> =
             let coreProps : IReactProperty list = [

@@ -1,5 +1,6 @@
 module Examples.Ordering
 
+open System
 open Elmish
 open Feliz
 open Feliz.UseElmish
@@ -216,9 +217,23 @@ type State = {
 }
 
 type Msg =
-    | ButtonClicked
     | AllCheckedChanged
     | ColumnChecked of Column<Person>
+    | Reset
+    | Randomise
+    
+let private rand = Random()    
+
+let private shuffle (arr: 'T[]) =
+    let swap x y (a: 'T []) =
+        let tmp = a[x]
+        a[x] <- a[y]
+        a[y] <- tmp
+    
+    arr
+    |> Array.iteri (fun i _ -> arr |> swap i (rand.Next(i, Array.length arr)))
+    
+    arr
     
 let init () =
     let tableProps = [
@@ -231,18 +246,27 @@ let init () =
 
 let update (msg: Msg) (state: State) =
     match msg with
-    | ButtonClicked ->
-        state, Cmd.none
     | AllCheckedChanged ->
-        let handler = Table.getToggleAllColumnsVisibilityHandler state.Table
-        handler()
-        state, Cmd.none
+        let anyVisible = Table.getIsSomeColumnsVisible state.Table
+        let table = Table.toggleAllColumnsVisible (not anyVisible) state.Table
+        { state with Table = table }, Cmd.none
     | ColumnChecked c ->
         let isVisible = Column.getIsVisible c
         let table = Table.setColumnVisibility c (not isVisible) state.Table
-        
+        { state with
+            Table = table }, Cmd.none
+    | Reset ->
+        let table = Table.resetColumnOrder state.Table
         { state with Table = table }, Cmd.none
-    
+    | Randomise ->
+        let shuffled =
+            Table.getAllLeafColumns state.Table
+            |> Array.map (fun c -> c.Id)
+            |> shuffle
+            
+        let table = Table.setColumnOrder shuffled state.Table
+        { state with Table = table }, Cmd.none
+        
 let view (state: State) (dispatch: Msg -> unit) =
     let table = 
         let thead =
@@ -314,31 +338,59 @@ let view (state: State) (dispatch: Msg -> unit) =
             ]
         ]
 
+    let inputCheck (props : {| id: string; text: string; isChecked: bool; onChange: unit -> unit |}) =
+        Html.div [
+            prop.className [ Bulma.Field ]
+            prop.children [
+                Html.label [
+                    prop.className Bulma.Checkbox
+                    prop.children [
+                        Html.input [
+                            prop.className [ Bulma.Pl2 ]
+                            prop.type' "checkbox"
+                            prop.isChecked props.isChecked
+                            prop.onCheckedChange (fun _ -> props.onChange())
+                        ]
+                        Html.text $" {props.text}"
+                    ]
+                ]
+            ]
+        ]
+    
     Html.div [
         prop.children [
             Html.div [
+                prop.className [ Bulma.Field ]
                 prop.children [
-                    Html.label [
-                        prop.text "Toggle All"
-                        prop.htmlFor "all"
-                    ]
-                    Html.input [
-                        prop.id "all"
-                        prop.type' "checkbox"
-                        prop.defaultChecked (Table.getIsAllColumnsVisible state.Table)
-                        prop.onCheckedChange (fun _ -> dispatch AllCheckedChanged)
-                    ]
-                    for column in Table.getAllLeafColumns state.Table do
-                        Html.label [
-                            prop.text column.Id
-                            prop.htmlFor column.Id
+                    inputCheck {| id = "all"
+                                  text = "Toggle All"
+                                  isChecked = Table.getIsSomeColumnsVisible state.Table
+                                  onChange = fun () -> dispatch AllCheckedChanged |}
+                    
+                    Html.div [
+                        prop.children [
+                            for column in Table.getAllLeafColumns state.Table do
+                                inputCheck {| id = column.Id
+                                              text = column.Id
+                                              isChecked = Column.getIsVisible column
+                                              onChange = fun () -> ColumnChecked column |> dispatch |}
                         ]
-                        Html.input [
-                            prop.id column.Id
-                            prop.type' "checkbox"
-                            prop.defaultChecked (Column.getIsVisible column)
-                            prop.onCheckedChange (fun _ -> ColumnChecked column |> dispatch)
+                    ]
+                    Html.div [
+                        prop.className [ Bulma.Pt2 ]
+                        prop.children [
+                            Html.button [
+                                prop.className [ Bulma.Button ]
+                                prop.text "Reset"
+                                prop.onClick (fun _ -> dispatch Reset)
+                            ]
+                            Html.button [
+                                prop.className [ Bulma.Button ]
+                                prop.text "Randomise"
+                                prop.onClick (fun _ -> dispatch Randomise)
+                            ]
                         ]
+                    ]
                 ]
             ]
             
@@ -346,6 +398,7 @@ let view (state: State) (dispatch: Msg -> unit) =
         ]
     ]
     
+[<ReactComponent>]
 let Component () =
     let state, dispatch = React.useElmish (init, update)
     view state dispatch

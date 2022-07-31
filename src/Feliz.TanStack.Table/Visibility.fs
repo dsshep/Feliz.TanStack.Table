@@ -34,14 +34,21 @@ module Visibility =
             updateStateFunctionCall (fun t -> t?resetColumnVisibility(defaultState)) table
             
         static member toggleAllColumnsVisible (value : bool) (table : Table<'T>) =
-            updateStateFunctionCall (fun t -> t?toggleAllColumnsVisible(value)) table
+            let allColumns : Column<'T>[] = table._obj?getAllLeafColumns()
+            let visibilityState = createObj [
+                for c in allColumns do
+                    c?id ==> value
+            ]
+            
+            table._obj?setOptions(fun prev ->
+                prev?state?columnVisibility <- visibilityState
+                setStateChange prev table._obj?options (fun () -> ()))
+            
+            table
             
         static member getIsAllColumnsVisible (table : Table<'T>) : bool =
             table._obj?getIsAllColumnsVisible()
             
         static member getIsSomeColumnsVisible (table : Table<'T>) : bool =
             table._obj?getIsSomeColumnsVisible()
-            
-        static member getToggleAllColumnsVisibilityHandler (table : Table<'T>) : 'TEvent -> unit =
-            table?getToggleAllColumnsVisibilityHandler
             
