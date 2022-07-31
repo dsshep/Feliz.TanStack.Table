@@ -1,7 +1,6 @@
-module App.Examples.Ordering
+module Examples.Ordering
 
 open Elmish
-open Fable.Core.JS
 open Feliz
 open Feliz.TanStack.Table
 
@@ -184,7 +183,7 @@ let defaultColumns : ColumnDefOptionProp<Person> list list = [
           [ columnDef.accessorKey "Firstname"
             columnDef.cell (fun info -> info.getValue<_>())
             columnDef.footer (fun props -> props.column.id) ]
-          [ columnDef.accessorFn (fun row -> row.Lastname)
+          [ columnDef.accessorKey "Lastname"
             columnDef.id "Lastname"
             columnDef.cell (fun info -> info.getValue<_>())
             columnDef.header (fun _ -> Html.span [ prop.text "Last Name" ])
@@ -213,11 +212,12 @@ let defaultColumns : ColumnDefOptionProp<Person> list list = [
 
 type State = {
     Table : Table<Person>
-    HideColumn: bool
 }
 
 type Msg =
     | ButtonClicked
+    | AllCheckedChanged
+    | ColumnChecked of Column<Person>
     
 let init () =
     let tableProps = [
@@ -225,18 +225,24 @@ let init () =
         tableProps.columns defaultColumns ]
     
     let table = Table.init<Person> tableProps
-    { Table = table; HideColumn = false }, Cmd.none
+    
+    { Table = table }, Cmd.none
 
 let update (state: State) (msg: Msg) =
     match msg with
     | ButtonClicked ->
-        debugger()
-        { state with
-            Table = Table.setColumnVisibility "firstname" (not state.HideColumn) state.Table
-            HideColumn = not state.HideColumn }, Cmd.none
+        state, Cmd.none
+    | AllCheckedChanged ->
+        let handler = Table.getToggleAllColumnsVisibilityHandler state.Table
+        handler()
+        state, Cmd.none
+    | ColumnChecked c ->
+        let isVisible = Column.getIsVisible c
+        let table = Table.setColumnVisibility c (not isVisible) state.Table
+        
+        { state with Table = table }, Cmd.none
     
 let view (state: State) (dispatch: Msg -> unit) =
-    debugger()
     let table = 
         let thead =
             Html.thead [
@@ -247,7 +253,9 @@ let view (state: State) (dispatch: Msg -> unit) =
                              for header in headerGroup.Headers do
                                  Html.th [
                                      prop.key header.Id
+                                     prop.colSpan header.ColSpan
                                      prop.flexRender (
+                                         header.IsPlaceholder,
                                          header.Column.ColumnDef.Header,
                                          Table.getContext header)
                                  ]
@@ -280,7 +288,9 @@ let view (state: State) (dispatch: Msg -> unit) =
                             for footer in footerGroup.Headers do
                                 Html.th [
                                     prop.key footer.Id
+                                    prop.colSpan footer.ColSpan
                                     prop.flexRender(
+                                        footer.IsPlaceholder,
                                         footer.Column.ColumnDef.Footer,
                                         Table.getContext footer)
                                 ]
@@ -305,9 +315,30 @@ let view (state: State) (dispatch: Msg -> unit) =
 
     Html.div [
         prop.children [
-            Html.button [
-                prop.text "Click me"
-                prop.onClick (fun _ -> dispatch ButtonClicked)
+            Html.div [
+                prop.children [
+                    Html.label [
+                        prop.text "Toggle All"
+                        prop.htmlFor "all"
+                    ]
+                    Html.input [
+                        prop.id "all"
+                        prop.type' "checkbox"
+                        prop.defaultChecked (Table.getIsAllColumnsVisible state.Table)
+                        prop.onCheckedChange (fun _ -> dispatch AllCheckedChanged)
+                    ]
+                    for column in Table.getAllLeafColumns state.Table do
+                        Html.label [
+                            prop.text column.Id
+                            prop.htmlFor column.Id
+                        ]
+                        Html.input [
+                            prop.id column.Id
+                            prop.type' "checkbox"
+                            prop.defaultChecked (Column.getIsVisible column)
+                            prop.onCheckedChange (fun _ -> ColumnChecked column |> dispatch)
+                        ]
+                ]
             ]
             table
         ]

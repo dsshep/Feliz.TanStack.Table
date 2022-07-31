@@ -4,7 +4,7 @@
     <RootNamespace>App</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Examples\Elmish.fs" />
+    <Compile Include="Examples\Basic.fs" />
     <Compile Include="Examples\Ordering.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="Table.fs" />
@@ -19,6 +19,7 @@
     <PackageReference Include="Fable.Elmish.HMR" Version="5.2.0" />
     <PackageReference Include="Feliz" Version="1.65.0" />
     <PackageReference Include="Feliz.Router" Version="3.8.0" />
+    <PackageReference Include="Zanaptak.TypedCssClasses" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Feliz.TanStack.Table/Feliz.TanStack.Table.fsproj" />

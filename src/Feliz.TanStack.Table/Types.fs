@@ -287,8 +287,8 @@ module rec Types =
         Column: Column<'T>
         ColSpan: int
         RowSpan: int
-        IsPlaceHolder: bool
-        PlaceHolderId: string
+        IsPlaceholder: bool
+        PlaceholderId: string
     } with interface IContext with
             member this.Instance = this._obj
     

@@ -1,4 +1,4 @@
-module App.Examples.Elmish
+module Examples.Basic
 
 open Elmish
 open Fable.Core.JS
@@ -92,7 +92,7 @@ let update (state: State) (msg: Msg) =
     match msg with
     | ButtonClicked ->
         { state with
-            Table = Table.setColumnVisibility "firstname" (not state.HideColumn) state.Table
+            //Table = Table.setColumnVisibility "firstname" (not state.HideColumn) state.Table
             HideColumn = not state.HideColumn }, Cmd.none
     
 let view (state: State) (dispatch: Msg -> unit) =

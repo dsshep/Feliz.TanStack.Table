@@ -22,11 +22,11 @@ module Visibility =
             let dynamicColumns = table._obj?getCenterVisibleLeafColumns()
             dynamicColumns |> Array.choose Table.getColumn
         
-        static member setColumnVisibility (column: string) (isVisible: bool) (table : Table<'T>) : Table<'T> =
+        static member setColumnVisibility (column : Column<'T>) (isVisible : bool) (table : Table<'T>) : Table<'T> =
             updateRecordStateProperty
                 (fun s -> s?columnVisibility)
                 (fun s n -> s?columnVisibility <- n)
-                column
+                column._obj?id
                 isVisible
                 table
         
@@ -43,4 +43,5 @@ module Visibility =
             table._obj?getIsSomeColumnsVisible()
             
         static member getToggleAllColumnsVisibilityHandler (table : Table<'T>) : 'TEvent -> unit =
-            table?getToggleAllColumnsVisibilityHandler()
+            table?getToggleAllColumnsVisibilityHandler
+            

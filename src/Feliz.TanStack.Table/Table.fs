@@ -103,28 +103,33 @@ module rec Table =
             { _obj = o
               Id = o?id
               Row = Table.getRow o
-              Column = (Table.getColumn o []).Value }
+              Column = (Table.getColumn o).Value }
             
-        static member internal getColumn (o: obj) (acc : Column<'T> list) : Column<'T> option =
+        static member internal getColumn (o: obj, ?parent : Column<'T>) : Column<'T> option =
             if o = null then None
-            // prevent a stack overflow from parsing columns that then reference back
-            // to the same column
-            else match acc |> List.tryFind (fun c -> c._obj = o) with
-                 | Some c -> Some c
-                 | None -> 
-                    let columns =
-                        if o?columns = null then [||]
-                        else o?columns |> Array.choose (Table.getColumn acc)
-                        
-                    let accumulation = acc |> List.append (columns |> Array.toList)
-                        
+            // prevent a stack overflow from parsing columns
+            // that then reference back to the same column
+            else
+                let parent = 
+                    match parent with
+                    | Some p -> p |> Some
+                    | None -> (Table.getColumn (o?parent))
+                
+                let temp = 
                     { _obj = o
                       Id = o?id
                       Depth = o?depth
                       ColumnDef = Table.getColumnDef o?columnDef
-                      Columns = columns
-                      Parent = Table.getColumn o?parent (acc |> List.append accumulation) } |> Some
-            
+                      Columns = [||]
+                      Parent = parent }
+                    
+                let columns =
+                    o?columns
+                    |> Array.map (fun c -> Table.getColumn(c, temp))
+                    |> Array.choose id
+                    
+                { temp with Columns = columns } |> Some
+                
         static member convertToRows (o : seq<_>) =
             if o = null then [||]
             else [| for r in o do
@@ -151,7 +156,7 @@ module rec Table =
                     _obj = c
                     Id = c?id
                     Row = Table.getRow c
-                    Column = (Table.getColumn c?column []).Value
+                    Column = (Table.getColumn c?column).Value
                 })
             cells
             
@@ -162,11 +167,11 @@ module rec Table =
                       Id = h?id
                       Index = h?index
                       Depth = h?depth
-                      Column = (Table.getColumn h?column []).Value
+                      Column = (Table.getColumn h?column).Value
                       ColSpan = h?colSpan
                       RowSpan = h?rowSpan
-                      IsPlaceHolder = h?isPlaceHolder
-                      PlaceHolderId = h?placeHolderId
+                      IsPlaceholder = h?isPlaceholder
+                      PlaceholderId = h?placeholderId
                       SubHeaders = convertToHeader h?subHeaders }
             |]
             
@@ -186,6 +191,9 @@ module rec Table =
         static member getFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
             Table.getHeaderFooterGroups false table
             
+        static member getAllLeafColumns (table : Table<'T>) : Column<'T>[] =
+            table._obj?getAllLeafColumns() |> Array.choose (Table.getColumn)
+            
         static member getRowModel (table : Table<'T>) : RowModel<'T> =
             let rowModel = table._obj?getRowModel()
             let rows = Table.convertToRows rowModel?rows
@@ -193,7 +201,11 @@ module rec Table =
               Rows = rows }
             
     type prop =
-        static member inline flexRender<'T>(comp: obj, context: Context<'T>) =
+        static member inline flexRender<'T> (comp : obj, context : Context<'T>) =
             prop.children [
                 innerFlexRender(comp, context)
             ]
+        
+        static member inline flexRender<'T> (isPlaceholder : bool, comp : obj, context : Context<'T>) =
+            if isPlaceholder then prop.children [ Html.none ]
+            else prop.flexRender(comp, context)

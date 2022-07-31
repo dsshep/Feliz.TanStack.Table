@@ -21,6 +21,7 @@
         <Compile Include="Table.fs" />
         <Compile Include="Visibility.fs" />
         <Compile Include="Ordering.fs" />
+        <Compile Include="Column.fs" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -28,7 +29,10 @@
             <NpmPackage Name="@tanstack/react-table" Version="gt 8.0.0 lt 9.0.0" ResolutionStrategy="Max" />
         </NpmDependencies>
     </PropertyGroup>
-    
+
+    <ItemGroup>
+        <Content Include="*.fsproj; *.fs; *.js;" PackagePath="fable\" />
+    </ItemGroup>
     <ItemGroup>
       <PackageReference Include="Feliz" Version="1.65.0" />
     </ItemGroup>
