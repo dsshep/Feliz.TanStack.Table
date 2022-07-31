@@ -7,7 +7,24 @@ open Fable.Core.JsInterop
 type Page =
     | Home
     | Basic
-    | ColumnGroups
+    | Groups
+    | Ordering
+    
+type Link = {
+  Name: string
+  Page: Page
+}
+
+let links: Link list = [
+  { Name = "Home"
+    Page = Home }
+  { Name = "Basic"
+    Page = Basic }
+  { Name = "Column Groups"
+    Page = Groups }
+  { Name = "Column Ordering"
+    Page = Ordering }
+]
     
 [<RequireQualifiedAccess>]
 module Page =
@@ -15,7 +32,8 @@ module Page =
     
     let parseUrlSegment = function
         | [ "basic" ] -> Page.Basic
-        | [ "columnGroups" ] -> Page.ColumnGroups
+        | [ "groups" ] -> Page.Groups
+        | [ "ordering" ] -> Page.Ordering
         | _ -> defaultPage
     
     let noQueryString segments : string list * (string * string) list = segments, []
@@ -25,7 +43,8 @@ module Page =
             match page with
             | Page.Home -> [ "" ]
             | Page.Basic -> [ "basic" ]
-            | Page.ColumnGroups -> [ "columnGroups" ]
+            | Page.Groups -> [ "groups" ]
+            | Page.Ordering -> [ "ordering" ]
         
         pageSegments |> noQueryString
     
@@ -40,4 +59,8 @@ module Router =
     
 [<RequireQualifiedAccess>]
 module Cmd =
-    let navigatePage (page: Page) = page |> Page.toUrlSegments |> Cmd.navigate
+    let navigatePage (page: Page) =
+        page
+        |> Page.toUrlSegments
+        |> Cmd.navigate
+    

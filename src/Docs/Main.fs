@@ -3,50 +3,24 @@
 open Elmish
 open Feliz
 open Router
-open Zanaptak.TypedCssClasses
-
-type Bulma = CssClasses<"https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css", Naming.PascalCase>
 
 type State = {
     Page: Page
-    BasicState: Examples.Basic.State
-    OrderingState: Examples.Ordering.State
 }
 
 type Msg = 
     | UrlChanged of Page
-    | BasicMsg of Examples.Basic.Msg
-    | OrderingMsg of Examples.Ordering.Msg
 
 let init () =
     let nextPage = Router.currentUrl() |> Page.parseUrlSegment
-    let basicState, basicCmd = Examples.Basic.init()
-    let orderingState, orderingCmd = Examples.Ordering.init()
-    { Page = nextPage
-      BasicState = basicState
-      OrderingState = orderingState },
-    Cmd.batch [ Cmd.map BasicMsg basicCmd
-                Cmd.map OrderingMsg orderingCmd ]
+    { Page = nextPage }, Cmd.none
 
 let update (msg : Msg) (state : State) = 
     match msg with 
-    | UrlChanged page -> { state with Page = page }, Cmd.none
-    | BasicMsg elmMsg ->
-        let update, cmd = Examples.Basic.update state.BasicState elmMsg
-        { state with BasicState = update }, Cmd.map BasicMsg cmd
-    | OrderingMsg msg ->
-        let update, cmd = Examples.Ordering.update state.OrderingState msg
-        { state with OrderingState = update }, Cmd.map OrderingMsg cmd
+    | UrlChanged page ->
+        { state with Page = page }, Cmd.none
 
 let view (state : State) (dispatch : Msg -> unit) =
-    let pages: {| displayName: string; isSelected: bool |} list = [
-        {| displayName = "Basic"; isSelected = true |}
-        {| displayName = "Grouping"; isSelected = false |}
-        {| displayName = "Another example"; isSelected = false |}
-        {| displayName = "Something silly"; isSelected = false |}
-        {| displayName = "Reeeee"; isSelected = false |}
-    ]
-    
     let sidebar =
         Html.div [
             prop.className [ Bulma.Tile; Bulma.Is2 ]
@@ -61,14 +35,15 @@ let view (state : State) (dispatch : Msg -> unit) =
                                     prop.className [ Bulma.MenuLabel; Bulma.IsUnselectable ]
                                     prop.text "Feliz.TanStack.Table"
                                 ]
-                                for p in pages do 
+                                for l in links do
                                     Html.li [
                                         Html.a [
                                             prop.className [
-                                                if p.isSelected then Bulma.HasBackgroundPrimary
-                                                if p.isSelected then Bulma.IsActive
+                                                if l.Page = state.Page then Bulma.HasBackgroundPrimary
+                                                if l.Page = state.Page then Bulma.IsActive
                                             ]
-                                            prop.text p.displayName
+                                            prop.text l.Name
+                                            prop.onClick (fun _ -> Router.navigatePage l.Page)
                                         ]
                                     ]
                             ]
@@ -82,8 +57,11 @@ let view (state : State) (dispatch : Msg -> unit) =
         Html.main [
             prop.className [ Bulma.Tile; Bulma.Is10 ]
             prop.children [
-                Html.div [ prop.children (Examples.Basic.view state.BasicState (BasicMsg >> dispatch)) ]
-                Html.div [ prop.children (Examples.Ordering.view state.OrderingState (OrderingMsg >> dispatch)) ]
+                match state.Page with
+                | Page.Home -> Home.view()
+                | Page.Basic -> Examples.Basic.Component()
+                | Page.Groups -> Examples.Groups.Component()
+                | Page.Ordering -> Examples.Ordering.Component()
             ]
         ]
         

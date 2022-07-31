@@ -1,4 +1,4 @@
-module Examples.Ordering
+module Examples.Groups
 
 open Elmish
 open Feliz
@@ -216,9 +216,7 @@ type State = {
 }
 
 type Msg =
-    | ButtonClicked
-    | AllCheckedChanged
-    | ColumnChecked of Column<Person>
+    | Nop
     
 let init () =
     let tableProps = [
@@ -230,18 +228,7 @@ let init () =
     { Table = table }, Cmd.none
 
 let update (msg: Msg) (state: State) =
-    match msg with
-    | ButtonClicked ->
-        state, Cmd.none
-    | AllCheckedChanged ->
-        let handler = Table.getToggleAllColumnsVisibilityHandler state.Table
-        handler()
-        state, Cmd.none
-    | ColumnChecked c ->
-        let isVisible = Column.getIsVisible c
-        let table = Table.setColumnVisibility c (not isVisible) state.Table
-        
-        { state with Table = table }, Cmd.none
+    state, Cmd.none
     
 let view (state: State) (dispatch: Msg -> unit) =
     let table = 
@@ -314,38 +301,9 @@ let view (state: State) (dispatch: Msg -> unit) =
             ]
         ]
 
-    Html.div [
-        prop.children [
-            Html.div [
-                prop.children [
-                    Html.label [
-                        prop.text "Toggle All"
-                        prop.htmlFor "all"
-                    ]
-                    Html.input [
-                        prop.id "all"
-                        prop.type' "checkbox"
-                        prop.defaultChecked (Table.getIsAllColumnsVisible state.Table)
-                        prop.onCheckedChange (fun _ -> dispatch AllCheckedChanged)
-                    ]
-                    for column in Table.getAllLeafColumns state.Table do
-                        Html.label [
-                            prop.text column.Id
-                            prop.htmlFor column.Id
-                        ]
-                        Html.input [
-                            prop.id column.Id
-                            prop.type' "checkbox"
-                            prop.defaultChecked (Column.getIsVisible column)
-                            prop.onCheckedChange (fun _ -> ColumnChecked column |> dispatch)
-                        ]
-                ]
-            ]
-            
-            table
-        ]
-    ]
+    table
     
-let Component () =
+[<ReactComponent>]
+let Component() =
     let state, dispatch = React.useElmish (init, update)
     view state dispatch

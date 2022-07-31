@@ -1,8 +1,8 @@
 module Examples.Basic
 
 open Elmish
-open Fable.Core.JS
 open Feliz
+open Feliz.UseElmish
 open Feliz.TanStack.Table
 
 type Person = {
@@ -88,7 +88,7 @@ let init () =
     let table = Table.init<Person> tableProps
     { Table = table; HideColumn = false }, Cmd.none
 
-let update (state: State) (msg: Msg) =
+let update (msg: Msg) (state: State) =
     match msg with
     | ButtonClicked ->
         { state with
@@ -162,13 +162,11 @@ let view (state: State) (dispatch: Msg -> unit) =
             ]
         ]
 
-    Html.div [
-        prop.children [
-            Html.button [
-                prop.text "Click me"
-                prop.onClick (fun _ -> dispatch ButtonClicked)
-            ]
-            table
-        ]
-    ]
+    table
+    
+[<ReactComponent>]
+let Component() =
+    let state, dispatch = React.useElmish (init, update)
+    view state dispatch
+
     
