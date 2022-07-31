@@ -324,9 +324,7 @@ let view (state: State) (dispatch: Msg -> unit) =
             ]
         
         Html.div [
-            prop.classes [
-                "p-2"
-            ]
+            prop.className [ Bulma.P2 ]
             prop.children [
                 Html.table [
                     prop.children [

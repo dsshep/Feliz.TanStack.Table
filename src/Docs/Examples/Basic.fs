@@ -78,7 +78,7 @@ type State = {
 }
 
 type Msg =
-    | ButtonClicked
+    | Nop
     
 let init () =
     let tableProps = [
@@ -89,11 +89,7 @@ let init () =
     { Table = table; HideColumn = false }, Cmd.none
 
 let update (msg: Msg) (state: State) =
-    match msg with
-    | ButtonClicked ->
-        { state with
-            //Table = Table.setColumnVisibility "firstname" (not state.HideColumn) state.Table
-            HideColumn = not state.HideColumn }, Cmd.none
+    state, Cmd.none
     
 let view (state: State) (dispatch: Msg -> unit) =
     let table = 

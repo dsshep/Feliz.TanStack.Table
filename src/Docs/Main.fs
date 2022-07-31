@@ -21,6 +21,14 @@ let update (msg : Msg) (state : State) =
         { state with Page = page }, Cmd.none
 
 let view (state : State) (dispatch : Msg -> unit) =
+    let sourceLinkOpt =
+        let baseUrl = "https://github.com/dsshep/Feliz.TanStack.Table/tree/main/src/Docs/Examples/"
+        match state.Page with
+        | Home -> None
+        | Basic -> Some $"{baseUrl}Basic.fs"
+        | Groups -> Some $"{baseUrl}Groups.fs"
+        | Ordering -> Some $"{baseUrl}Ordering.fs"
+    
     let sidebar =
         Html.div [
             prop.className [ Bulma.Tile; Bulma.Is2 ]
@@ -62,6 +70,20 @@ let view (state : State) (dispatch : Msg -> unit) =
                 | Page.Basic -> Examples.Basic.Component()
                 | Page.Groups -> Examples.Groups.Component()
                 | Page.Ordering -> Examples.Ordering.Component()
+                
+                match sourceLinkOpt with
+                | None -> Html.none
+                | Some l ->
+                    Html.footer [
+                        Html.p [
+                            Html.text "View the source code for this example "
+                            Html.a [
+                                prop.text "here"
+                                prop.href l
+                            ]
+                            Html.text "."
+                        ]
+                    ]
             ]
         ]
         
