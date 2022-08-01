@@ -1,4 +1,4 @@
-module Examples.Ordering
+module Examples.Pinning
 
 open System
 open Elmish
@@ -214,6 +214,7 @@ let defaultColumns : ColumnDefOptionProp<Person> list list = [
 
 type State = {
     Table : Table<Person>
+    IsSplitMode : bool
 }
 
 type Msg =
@@ -221,6 +222,8 @@ type Msg =
     | ColumnChecked of Column<Person>
     | Reset
     | Randomise
+    | SplitModeChanged
+    | ToggleColumnPinning of Column<Person> * ColumnPinningPosition
     
 let private rand = Random()    
 
@@ -242,7 +245,7 @@ let init () =
     
     let table = Table.init<Person> tableProps
     
-    { Table = table }, Cmd.none
+    { Table = table; IsSplitMode = false }, Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
@@ -265,26 +268,68 @@ let update (msg: Msg) (state: State) =
             
         let table = Table.setColumnOrder shuffled state.Table
         { state with Table = table }, Cmd.none
+    | SplitModeChanged ->
+        { state with IsSplitMode = (not state.IsSplitMode) }, Cmd.none
+    | ToggleColumnPinning (column, columnPinningPosition) ->
+        let table = Table.pinColumn columnPinningPosition column state.Table
+        { state with Table = table }, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
+    Fable.Core.JS.console.log "Re-render"
+    let renderPinButtons (column : Column<Person>) =
+        Html.div [
+            prop.children [
+                match Column.getIsPinned column with
+                | Neither | Right ->
+                   Html.button [
+                       prop.className [ Bulma.Button; Bulma.IsSmall ]
+                       prop.text "<="
+                       prop.onClick (fun _ -> ToggleColumnPinning (column, Left) |> dispatch)
+                   ]
+                | _ -> Html.none
+                match Column.getIsPinned column with
+                | Neither | Left ->
+                    Html.button [
+                       prop.className [ Bulma.Button; Bulma.IsSmall ]
+                       prop.text "=>"
+                       prop.onClick (fun _ -> ToggleColumnPinning (column, Right) |> dispatch)
+                   ]
+                | _ -> Html.none
+                match Column.getIsPinned column with
+                | Left | Right ->
+                    Html.button [
+                       prop.className [ Bulma.Button; Bulma.IsSmall ]
+                       prop.text "x"
+                       prop.onClick (fun _ -> ToggleColumnPinning (column, Neither) |> dispatch)
+                   ]
+                | _ -> Html.none
+            ]
+        ]
+    
     let table = 
         let thead =
             Html.thead [
                 for headerGroup in Table.getHeaderGroups state.Table do
-                     Html.tr [
-                         prop.key headerGroup.Id
-                         prop.children [
-                             for header in headerGroup.Headers do
-                                 Html.th [
-                                     prop.key header.Id
-                                     prop.colSpan header.ColSpan
-                                     prop.flexRender (
-                                         header.IsPlaceholder,
-                                         header.Column.ColumnDef.Header,
-                                         Table.getContext header)
-                                 ]
-                         ]
-                     ]
+                    Html.tr [
+                        prop.key headerGroup.Id
+                        prop.children [
+                            for header in headerGroup.Headers do
+                                Html.th [
+                                    prop.key header.Id
+                                    prop.colSpan header.ColSpan
+                                    prop.children [
+                                        Html.div [
+                                            prop.flexRender (
+                                                header.IsPlaceholder,
+                                                header.Column.ColumnDef.Header,
+                                                Table.getContext header)
+                                        ]
+                                        if not header.IsPlaceholder && Column.getCanPin header.Column then
+                                            renderPinButtons header.Column
+                                   ]
+                                ]
+                        ]
+                    ]
             ]
             
         let tbody =
@@ -388,6 +433,10 @@ let view (state: State) (dispatch: Msg -> unit) =
                             ]
                         ]
                     ]
+                    inputCheck {| id = "split"
+                                  text = "Split Mode"
+                                  isChecked = state.IsSplitMode
+                                  onChange = fun () -> dispatch SplitModeChanged |}
                 ]
             ]
             
