@@ -9,6 +9,7 @@
     <Compile Include="Examples\Groups.fs" />
     <Compile Include="Examples\Ordering.fs" />
     <Compile Include="Examples\Pinning.fs" />
+    <Compile Include="Examples\Resizing.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="Main.fs" />

@@ -10,6 +10,7 @@ type Page =
     | Groups
     | Ordering
     | Pinning
+    | Resizing
     
 type Link = {
   Name: string
@@ -27,8 +28,10 @@ let links: Link list = [
     Page = Ordering }
   { Name = "Column Pinning"
     Page = Pinning }
+  { Name = "Column Resizing"
+    Page = Resizing }
 ]
-    
+
 [<RequireQualifiedAccess>]
 module Page =
     let defaultPage = Page.Home
@@ -38,6 +41,7 @@ module Page =
         | [ "groups" ] -> Page.Groups
         | [ "ordering" ] -> Page.Ordering
         | [ "pinning" ] -> Page.Pinning
+        | [ "resizing" ] -> Page.Resizing
         | _ -> defaultPage
     
     let noQueryString segments : string list * (string * string) list = segments, []
@@ -50,6 +54,7 @@ module Page =
             | Page.Groups -> [ "groups" ]
             | Page.Ordering -> [ "ordering" ]
             | Page.Pinning -> [ "pinning" ]
+            | Page.Resizing -> [ "resizing" ]
         
         pageSegments |> noQueryString
     

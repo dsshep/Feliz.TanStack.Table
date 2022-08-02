@@ -35,6 +35,7 @@ let view (state : State) (dispatch : Msg -> unit) =
         | Groups -> Some $"{baseUrl}Groups.fs"
         | Ordering -> Some $"{baseUrl}Ordering.fs"
         | Pinning -> Some $"{baseUrl}Pinning.fs"
+        | Resizing -> Some $"{baseUrl}Resizing.fs"
     
     let sourceLink =
         match sourceLinkOpt with
@@ -108,6 +109,7 @@ let view (state : State) (dispatch : Msg -> unit) =
                                     | Page.Groups -> Examples.Groups.Component()
                                     | Page.Ordering -> Examples.Ordering.Component()
                                     | Page.Pinning -> Examples.Pinning.Component()
+                                    | Page.Resizing -> Examples.Resizing.Component()
                                 ]
                             ])
                         colDiv sourceLink
