@@ -145,8 +145,7 @@ module rec Table =
               Original = o?original
               SubRows = Table.convertToRows o?subRows }
         
-        static member getVisibleCells (row : Row<'T>) : Cell<'T>[] =
-            let dynamicCells = row._obj?getVisibleCells()
+        static member private convertCells (dynamicCells : obj[]) : Cell<'T>[] =
             let cells =
                 dynamicCells
                 |> Array.map (fun c -> {
@@ -157,7 +156,19 @@ module rec Table =
                 })
             cells
             
-        static member private getHeaderFooterGroups (header : bool) (table : Table<'T>) : HeaderGroup<'T>[] =
+        static member getVisibleCells (row : Row<'T>) : Cell<'T>[] =
+            Table.convertCells (row._obj?getVisibleCells())
+            
+        static member getLeftVisibleCells (row : Row<'T>) : Cell<'T>[] =
+            Table.convertCells (row._obj?getLeftVisibleCells())
+        
+        static member getCenterVisibleCells (row : Row<'T>) : Cell<'T>[] =
+            Table.convertCells (row._obj?getCenterVisibleCells())
+            
+        static member getRightVisibleCells (row : Row<'T>) : Cell<'T>[] =
+            Table.convertCells (row._obj?getRightVisibleCells())
+            
+        static member private convertHeaderFooterGroups (groups : obj[]) : HeaderGroup<'T>[] =
             let rec convertToHeader (o : seq<_>) : Header<'T>[] = [|
                 for h in o do
                     { _obj = h
@@ -172,24 +183,38 @@ module rec Table =
                       SubHeaders = convertToHeader h?subHeaders }
             |]
             
-            let dynamicHeaderGroups =
-                if header then table._obj?getHeaderGroups()
-                else table._obj?getFooterGroups()
-            
-            dynamicHeaderGroups |> Array.map(fun g ->
+            groups |> Array.map(fun g ->
                 { _obj = g
                   Id = g?id
                   Depth = g?depth
                   Headers = convertToHeader (g?headers) })
             
         static member getHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.getHeaderFooterGroups true table
+            Table.convertHeaderFooterGroups (table._obj?getHeaderGroups())
+            
+        static member getLeftHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
+            Table.convertHeaderFooterGroups (table._obj?getLeftHeaderGroups())
+        
+        static member getCenterHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
+            Table.convertHeaderFooterGroups (table._obj?getCenterHeaderGroups())
+            
+        static member getRightHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
+            Table.convertHeaderFooterGroups (table._obj?getRightHeaderGroups())
             
         static member getFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.getHeaderFooterGroups false table
+            Table.convertHeaderFooterGroups (table._obj?getFooterGroups())
+            
+        static member getLeftFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
+            Table.convertHeaderFooterGroups (table._obj?getLeftFooterGroups())
+        
+        static member getCenterFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
+            Table.convertHeaderFooterGroups (table._obj?getCenterFooterGroups())
+            
+        static member getRightFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
+            Table.convertHeaderFooterGroups (table._obj?getRightFooterGroups())
             
         static member getAllLeafColumns (table : Table<'T>) : Column<'T>[] =
-            table._obj?getAllLeafColumns() |> Array.choose (Table.getColumn)
+            table._obj?getAllLeafColumns() |> Array.choose Table.getColumn
             
         static member getRowModel (table : Table<'T>) : RowModel<'T> =
             let rowModel = table._obj?getRowModel()

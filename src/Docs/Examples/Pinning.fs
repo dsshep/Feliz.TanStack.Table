@@ -275,7 +275,6 @@ let update (msg: Msg) (state: State) =
         { state with Table = table }, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
-    Fable.Core.JS.console.log "Re-render"
     let renderPinButtons (column : Column<Person>) =
         Html.div [
             prop.children [
@@ -288,14 +287,6 @@ let view (state: State) (dispatch: Msg -> unit) =
                    ]
                 | _ -> Html.none
                 match Column.getIsPinned column with
-                | Neither | Left ->
-                    Html.button [
-                       prop.className [ Bulma.Button; Bulma.IsSmall ]
-                       prop.text "=>"
-                       prop.onClick (fun _ -> ToggleColumnPinning (column, Right) |> dispatch)
-                   ]
-                | _ -> Html.none
-                match Column.getIsPinned column with
                 | Left | Right ->
                     Html.button [
                        prop.className [ Bulma.Button; Bulma.IsSmall ]
@@ -303,13 +294,24 @@ let view (state: State) (dispatch: Msg -> unit) =
                        prop.onClick (fun _ -> ToggleColumnPinning (column, Neither) |> dispatch)
                    ]
                 | _ -> Html.none
+                match Column.getIsPinned column with
+                | Neither | Left ->
+                    Html.button [
+                       prop.className [ Bulma.Button; Bulma.IsSmall ]
+                       prop.text "=>"
+                       prop.onClick (fun _ -> ToggleColumnPinning (column, Right) |> dispatch)
+                   ]
+                | _ -> Html.none
             ]
         ]
     
-    let table = 
+    let table
+        (headerGroups : HeaderGroup<Person>[])
+        (footerGroups : HeaderGroup<Person>[])
+        (visibleCells : Row<Person> -> Cell<Person>[]) = 
         let thead =
             Html.thead [
-                for headerGroup in Table.getHeaderGroups state.Table do
+                for headerGroup in headerGroups do
                     Html.tr [
                         prop.key headerGroup.Id
                         prop.children [
@@ -338,7 +340,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                     Html.tr [
                         prop.key row.Id
                         prop.children [
-                            for cell in Table.getVisibleCells row do
+                            for cell in visibleCells row do
                                 Html.td [
                                     prop.flexRender(
                                         cell.Column.ColumnDef.Cell,
@@ -350,7 +352,7 @@ let view (state: State) (dispatch: Msg -> unit) =
             
         let tfoot =
             Html.tfoot [
-                for footerGroup in Table.getFooterGroups state.Table do
+                for footerGroup in footerGroups do
                     Html.tr [
                         prop.key footerGroup.Id
                         prop.children [
@@ -440,7 +442,29 @@ let view (state: State) (dispatch: Msg -> unit) =
                 ]
             ]
             
-            table
+            if state.IsSplitMode then
+                Html.div [
+                    prop.className [ Bulma.Columns ]
+                    prop.children [ 
+                        (table
+                            (Table.getLeftHeaderGroups state.Table)
+                            (Table.getLeftFooterGroups state.Table)
+                            Table.getLeftVisibleCells)
+                        (table
+                            (Table.getCenterHeaderGroups state.Table)
+                            (Table.getCenterFooterGroups state.Table)
+                            Table.getCenterVisibleCells)
+                        (table
+                            (Table.getRightHeaderGroups state.Table)
+                            (Table.getRightFooterGroups state.Table)
+                            Table.getRightVisibleCells)
+                    ]
+                ]
+            else 
+                table
+                    (Table.getHeaderGroups state.Table)
+                    (Table.getFooterGroups state.Table)
+                    Table.getVisibleCells
         ]
     ]
     
