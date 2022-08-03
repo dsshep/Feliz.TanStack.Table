@@ -102,7 +102,7 @@ type Msg =
     | ResizeModeChange of ResizeMode
     | BeginResize of Event * Header<Person>
     | Resize of Event * (Event -> Table<Person>)
-    | EndResize of Event * Header<Person>
+    | EndResize
     
 let private rand = Random()    
 
@@ -120,12 +120,14 @@ let private shuffle (arr: 'T[]) =
 let init () =
     let tableProps = [
         tableProps.data defaultData
-        tableProps.columns defaultColumns ]
+        tableProps.columns defaultColumns
+        tableProps.columnResizeMode "onChange"
+        tableProps.enableColumnResizing true ]
     
     let table = Table.init<Person> tableProps
     
     { Table = table
-      ResizeMode = OnEnd
+      ResizeMode = OnChange
       ResizingHandler = None }, Cmd.none
 
 let update (msg: Msg) (state: State) =
@@ -134,30 +136,34 @@ let update (msg: Msg) (state: State) =
         { state with ResizeMode = resizeMode }, Cmd.none
         
     | BeginResize (event, header) ->
-        let handler = Header.resizeHandler header state.Table
-        let table = Header.resize event header state.Table
+        let handler = Header.resizeHandler2 event header state.Table
         { state with
             ResizingHandler = Some handler
-            Table = table }, Cmd.none
+            Table = state.Table }, Cmd.none
         
     | Resize (event, handler) ->
         let table = handler event
         { state with
             Table = table }, Cmd.none
         
-    | EndResize (event, header) ->
+    | EndResize ->
         match state.ResizingHandler with
         | Some _ ->
-            Fable.Core.JS.console.log "end resize"
-            let table = Header.resize event header state.Table
             { state with
                 ResizingHandler = None
-                Table = table }, Cmd.none
+                Table = state.Table }, Cmd.none
         | None -> state, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
     Fable.Core.JS.console.log "re-render"
     
+    let beginResize h e = BeginResize (e, h) |> dispatch
+    let move e = 
+        match state.ResizingHandler with
+         | Some p -> Resize (e, p) |> dispatch
+         | None -> ()
+    let endResize _ = EndResize  |> dispatch
+         
     let table = 
         let thead =
             Html.thead [
@@ -171,12 +177,8 @@ let view (state: State) (dispatch: Msg -> unit) =
                          prop.children [
                              for header in headerGroup.Headers do
                                  Html.th [
-                                     prop.onMouseMove (fun e ->
-                                         match state.ResizingHandler with
-                                         | Some p -> Resize (e, p) |> dispatch
-                                         | None -> ())
-                                     prop.onMouseUp (fun e -> EndResize (e, header) |> dispatch)
-                                     prop.onMouseLeave (fun e -> EndResize (e, header) |> dispatch)
+                                     prop.onMouseMove move
+                                     prop.onTouchMove move
                                      prop.key header.Id
                                      prop.colSpan header.ColSpan
                                      prop.style [
@@ -189,21 +191,12 @@ let view (state: State) (dispatch: Msg -> unit) =
                                              header.Column.ColumnDef.Header,
                                              Table.getContext header)
                                          Html.div [
-                                             //prop.onMouseMove (fun e -> Fable.Core.JS.console.log "mouse move")
-                                             //prop.onDrag (fun e -> Fable.Core.JS.console.log "drag...")
-                                             prop.onMouseDown (fun e -> BeginResize (e, header) |> dispatch)
-                                             prop.onTouchStart (fun e -> ())
-                                             prop.onTouchEnd (fun e -> ())
+                                             prop.onMouseDown (beginResize header)
+                                             prop.onTouchStart (beginResize header)
                                              prop.className [
                                                  "resizer"
                                                  if Column.getIsResizing header.Column then "isResizing"
                                              ]
-                                             // prop.style [
-                                             //     match state.ResizeMode with
-                                             //     | OnEnd when state.IsResizing ->
-                                             //        transform.translateX (length.px (Table.getState state.Table).ColumnSizingInfo.DeltaOffset)
-                                             //     | _ -> ()
-                                             // ]
                                          ]
                                      ]
                                  ]
@@ -241,6 +234,9 @@ let view (state: State) (dispatch: Msg -> unit) =
         ]
 
     Html.div [
+        prop.onMouseUp endResize
+        prop.onMouseLeave endResize
+        prop.onTouchEnd endResize
         prop.children [
             Html.p "Work in progress..."
             Html.div [

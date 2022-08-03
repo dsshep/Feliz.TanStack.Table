@@ -58,6 +58,10 @@ module rec Table =
             prop.custom ("onColumnOrderChange", fn)
         static member inline columnOrder (order: string[]) =
             prop.custom ("columnOrder", order)
+        static member inline columnResizeMode (resizeMode : string) =
+            prop.custom ("columnResizeMode", resizeMode)
+        static member inline enableColumnResizing (enable : bool) =
+            prop.custom ("enableColumnResizing", enable)
     
     type Table =
         static member private convertTable (dynamic : obj) (data : 'T []) : Table<'T> =
