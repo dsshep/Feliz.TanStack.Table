@@ -102,9 +102,11 @@ let view (state: State) (dispatch: Msg -> unit) =
                              for header in headerGroup.Headers do
                                  Html.th [
                                      prop.key header.Id
-                                     prop.flexRender (
-                                         header.Column.ColumnDef.Header,
-                                         Table.getContext header)
+                                     prop.children [
+                                         Html.flexRender (
+                                             header.Column.ColumnDef.Header,
+                                             Table.getContext header)
+                                     ]
                                  ]
                          ]
                      ]
@@ -118,7 +120,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
-                                    prop.flexRender(
+                                    Html.flexRender(
                                         cell.Column.ColumnDef.Cell,
                                         Table.getContext cell)
                                 ]
@@ -135,9 +137,11 @@ let view (state: State) (dispatch: Msg -> unit) =
                             for footer in footerGroup.Headers do
                                 Html.th [
                                     prop.key footer.Id
-                                    prop.flexRender(
-                                        footer.Column.ColumnDef.Footer,
-                                        Table.getContext footer)
+                                    prop.children [
+                                        Html.flexRender(
+                                            footer.Column.ColumnDef.Footer,
+                                            Table.getContext footer)
+                                    ]
                                 ]
                         ]
                     ]

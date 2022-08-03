@@ -21,7 +21,10 @@
         <Compile Include="Table.fs" />
         <Compile Include="Visibility.fs" />
         <Compile Include="Ordering.fs" />
+        <Compile Include="Header.fs" />
         <Compile Include="Column.fs" />
+        <Compile Include="Sizing.fs" />
+        <Compile Include="TableState.fs" />
     </ItemGroup>
 
     <PropertyGroup>

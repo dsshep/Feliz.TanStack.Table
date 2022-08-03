@@ -28,8 +28,8 @@ module rec Table =
                     | Id s -> "id" ==> s
                     | AccessorKey s -> "accessorKey" ==> s
                     | AccessorFn f -> "accessorFn" ==> f
-                    | Header s -> "header" ==> s
-                    | Footer s -> "footer" ==> s
+                    | HeaderStr s -> "header" ==> s
+                    | FooterStr s -> "footer" ==> s
                     | HeaderFn f -> "header" ==> f
                     | FooterFn f -> "footer" ==> f
                     | Cell f -> "cell" ==> f
@@ -48,7 +48,7 @@ module rec Table =
     type tableProps =
         static member inline data<'T> (data: 'T[]) =
             prop.custom ("data", data)
-        static member inline columns<'T> (columns: ColumnDefOptionProp<'T> list list) =
+        static member columns<'T> (columns: ColumnDefOptionProp<'T> list list) =
             prop.custom ("columns", (nativeColumnDefs columns))
         static member inline onColumnVisibilityChange (fn: Dictionary<string, bool> -> Dictionary<string, bool>) =
             prop.custom ("onColumnVisibilityChange", fn)
@@ -168,7 +168,7 @@ module rec Table =
         static member getRightVisibleCells (row : Row<'T>) : Cell<'T>[] =
             Table.convertCells (row._obj?getRightVisibleCells())
             
-        static member private convertHeaderFooterGroups (groups : obj[]) : HeaderGroup<'T>[] =
+        static member internal convertHeaders (o : seq<_>) : Header<'T>[] =
             let rec convertToHeader (o : seq<_>) : Header<'T>[] = [|
                 for h in o do
                     { _obj = h
@@ -182,12 +182,14 @@ module rec Table =
                       PlaceholderId = h?placeholderId
                       SubHeaders = convertToHeader h?subHeaders }
             |]
+            convertToHeader o
             
+        static member private convertHeaderFooterGroups (groups : obj[]) : HeaderGroup<'T>[] =
             groups |> Array.map(fun g ->
                 { _obj = g
                   Id = g?id
                   Depth = g?depth
-                  Headers = convertToHeader (g?headers) })
+                  Headers = Table.convertHeaders (g?headers) })
             
         static member getHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
             Table.convertHeaderFooterGroups (table._obj?getHeaderGroups())
@@ -222,12 +224,13 @@ module rec Table =
             { _obj = rowModel 
               Rows = rows }
             
-    type prop =
-        static member inline flexRender<'T> (comp : obj, context : Context<'T>) =
-            prop.children [
-                innerFlexRender(comp, context)
-            ]
+        static member getCenterTotalSize (table : Table<'T>) : int =
+            table._obj?getCenterTotalSize()
+            
+    type Html =
+        static member flexRender<'T> (comp : obj, context : Context<'T>) =
+            innerFlexRender(comp, context)
         
-        static member inline flexRender<'T> (isPlaceholder : bool, comp : obj, context : Context<'T>) =
-            if isPlaceholder then prop.children [ Html.none ]
-            else prop.flexRender(comp, context)
+        static member flexRender<'T> (isPlaceholder : bool, comp : obj, context : Context<'T>) =
+            if isPlaceholder then Html.none
+            else innerFlexRender(comp, context)

@@ -15,14 +15,21 @@ module rec Types =
 
     type Context<'T> = interface end
 
+    type InternalContext<'T> = {
+        _obj : obj
+        Table : Table<'T>
+        Header : Header<'T>
+        Column : Column<'T>
+    }
+    
     type ColumnDefOptionProp<'T> =
         internal
         | Id of string
         | AccessorKey of string
         | AccessorFn of ('T -> string)
-        | Header of string
+        | HeaderStr of string
         | HeaderFn of obj
-        | Footer of string
+        | FooterStr of string
         | FooterFn of obj
         | Cell of (CellContextProp<'T> -> ReactElement)
         | Columns of ColumnDefOptionProp<'T> list list
@@ -39,9 +46,9 @@ module rec Types =
         static member id s = Id s
         static member accessorKey s = AccessorKey s
         static member accessorFn fn = AccessorFn fn
-        static member header s = Header s
+        static member header s = HeaderStr s
         static member header<'T1, 'T2> (fn: HeaderFnProps<'T1> -> 'T2) = (HeaderFn fn) : ColumnDefOptionProp<'T1>
-        static member footer s = Footer s
+        static member footer s = FooterStr s
         static member footer<'T1, 'T2> (fn: HeaderFnProps<'T1> -> 'T2) = (FooterFn fn) : ColumnDefOptionProp<'T1>
         static member cell<'T> (fn: CellContextProp<'T> -> ReactElement) = Cell fn
         static member columns columnDef = Columns columnDef
@@ -207,13 +214,14 @@ module rec Types =
 //        abstract member id: string
 //        abstract member desc: bool
 //    
-//    type ColumnSizingInfoState =
-//        abstract member startOffset: int
-//        abstract member startSize: int
-//        abstract member deltaOffset: int
-//        abstract member deltaPercentage: int
-//        abstract member isResizingColumn: string
-//        abstract member columnSizingStart: (string * int)[]
+    type ColumnSizingInfoState = {
+        StartOffset: int
+        StartSize: int
+        DeltaOffset: int
+        DeltaPercentage: int
+        IsResizingColumn: string
+        ColumnSizingStart: (string * int)[]
+    }
 //    
 //    type PaginationState =
 //        abstract member pageIndex: int
@@ -323,18 +331,8 @@ module rec Types =
         Data: 'T []
     }
     
-//    type TableState<'T> =
-//        inherit CoreOptions<'T>
-//        inherit RowSelectionTableState
-//        abstract member columnVisibility: Dictionary<string, bool>
-//        abstract member columnOrder: string[]
-//        abstract member columnPinning: ColumnPinningState
-//        abstract member columnFilters: ColumnFilter[]
-//        abstract member globalFilter: obj
-//        abstract member sorting: ColumnSort[]
-//        abstract member expanded: Dictionary<string, bool>
-//        abstract member grouping: string[]
-//        abstract member columnSizing: Dictionary<string, int>
-//        abstract member columnSizingInfo: ColumnSizingInfoState
-//        abstract member pagination: PaginationState
-//        abstract member rowSelection: Dictionary<string, bool>
+    type TableState<'T> = {
+        _obj: obj
+        ColumnSizingInfo: ColumnSizingInfoState
+    }
+        

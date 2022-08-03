@@ -7,6 +7,7 @@ open Fable.Core.JsInterop
 open Feliz
 open Feliz.UseElmish
 open Feliz.TanStack.Table
+open Feliz.style
 
 type Person = {
   Firstname: string
@@ -86,14 +87,22 @@ type ResizeMode =
         | "onChange" -> Some OnChange
         | "onEnd" -> Some OnEnd
         | _ -> None
+        
+    static member toString = function
+        | OnChange -> "onChange"
+        | OnEnd -> "onEnd"
 
 type State = {
     Table : Table<Person>
     ResizeMode : ResizeMode
+    ResizingHandler : (Event -> Table<Person>) option
 }
 
 type Msg =
     | ResizeModeChange of ResizeMode
+    | BeginResize of Event * Header<Person>
+    | Resize of Event * (Event -> Table<Person>)
+    | EndResize of Event * Header<Person>
     
 let private rand = Random()    
 
@@ -115,12 +124,36 @@ let init () =
     
     let table = Table.init<Person> tableProps
     
-    { Table = table; ResizeMode = OnChange }, Cmd.none
+    { Table = table
+      ResizeMode = OnEnd
+      ResizingHandler = None }, Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
     | ResizeModeChange resizeMode ->
         { state with ResizeMode = resizeMode }, Cmd.none
+        
+    | BeginResize (event, header) ->
+        let handler = Header.resizeHandler header state.Table
+        let table = Header.resize event header state.Table
+        { state with
+            ResizingHandler = Some handler
+            Table = table }, Cmd.none
+        
+    | Resize (event, handler) ->
+        let table = handler event
+        { state with
+            Table = table }, Cmd.none
+        
+    | EndResize (event, header) ->
+        match state.ResizingHandler with
+        | Some _ ->
+            Fable.Core.JS.console.log "end resize"
+            let table = Header.resize event header state.Table
+            { state with
+                ResizingHandler = None
+                Table = table }, Cmd.none
+        | None -> state, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
     Fable.Core.JS.console.log "re-render"
@@ -131,15 +164,48 @@ let view (state: State) (dispatch: Msg -> unit) =
                 for headerGroup in Table.getHeaderGroups state.Table do
                      Html.tr [
                          prop.key headerGroup.Id
+                         prop.style [
+                             style.height (length.px 30)
+                             width.fitContent
+                         ]
                          prop.children [
                              for header in headerGroup.Headers do
                                  Html.th [
+                                     prop.onMouseMove (fun e ->
+                                         match state.ResizingHandler with
+                                         | Some p -> Resize (e, p) |> dispatch
+                                         | None -> ())
+                                     prop.onMouseUp (fun e -> EndResize (e, header) |> dispatch)
+                                     prop.onMouseLeave (fun e -> EndResize (e, header) |> dispatch)
                                      prop.key header.Id
                                      prop.colSpan header.ColSpan
-                                     prop.flexRender (
-                                         header.IsPlaceholder,
-                                         header.Column.ColumnDef.Header,
-                                         Table.getContext header)
+                                     prop.style [
+                                         style.width (Header.getSize header)
+                                         position.relative
+                                     ]
+                                     prop.children [
+                                         Html.flexRender (
+                                             header.IsPlaceholder,
+                                             header.Column.ColumnDef.Header,
+                                             Table.getContext header)
+                                         Html.div [
+                                             //prop.onMouseMove (fun e -> Fable.Core.JS.console.log "mouse move")
+                                             //prop.onDrag (fun e -> Fable.Core.JS.console.log "drag...")
+                                             prop.onMouseDown (fun e -> BeginResize (e, header) |> dispatch)
+                                             prop.onTouchStart (fun e -> ())
+                                             prop.onTouchEnd (fun e -> ())
+                                             prop.className [
+                                                 "resizer"
+                                                 if Column.getIsResizing header.Column then "isResizing"
+                                             ]
+                                             // prop.style [
+                                             //     match state.ResizeMode with
+                                             //     | OnEnd when state.IsResizing ->
+                                             //        transform.translateX (length.px (Table.getState state.Table).ColumnSizingInfo.DeltaOffset)
+                                             //     | _ -> ()
+                                             // ]
+                                         ]
+                                     ]
                                  ]
                          ]
                      ]
@@ -153,7 +219,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
-                                    prop.flexRender(
+                                    Html.flexRender(
                                         cell.Column.ColumnDef.Cell,
                                         Table.getContext cell)
                                 ]
@@ -161,33 +227,14 @@ let view (state: State) (dispatch: Msg -> unit) =
                     ]
             ]
             
-        let tfoot =
-            Html.tfoot [
-                for footerGroup in Table.getFooterGroups state.Table do
-                    Html.tr [
-                        prop.key footerGroup.Id
-                        prop.children [
-                            for footer in footerGroup.Headers do
-                                Html.th [
-                                    prop.key footer.Id
-                                    prop.colSpan footer.ColSpan
-                                    prop.flexRender(
-                                        footer.IsPlaceholder,
-                                        footer.Column.ColumnDef.Footer,
-                                        Table.getContext footer)
-                                ]
-                        ]
-                    ]
-            ]
-        
         Html.div [
             prop.className [ Bulma.P2 ]
             prop.children [
                 Html.table [
+                    prop.style [ style.width (Table.getCenterTotalSize state.Table) ]
                     prop.children [
                         thead
                         tbody
-                        tfoot
                     ]
                 ]
             ]
@@ -200,20 +247,19 @@ let view (state: State) (dispatch: Msg -> unit) =
                 prop.className [ Bulma.Field ]
                 prop.children [
                     Html.select [
+                        prop.className [ Bulma.Select ]
                         prop.onChange (fun (e : Event) ->
                             match ResizeMode.fromString e.target?value, state.ResizeMode with
                             | Some onChange, OnEnd -> ResizeModeChange onChange |> dispatch
                             | Some onEnd, OnChange -> ResizeModeChange onEnd |> dispatch
                             | _ -> ())
-                        prop.className [ Bulma.Select ]
+                        prop.value (ResizeMode.toString state.ResizeMode)
                         prop.children [
                             Html.option [
                                 prop.text "onChange"
-                                prop.selected (match state.ResizeMode with OnChange -> true | _ -> false)
                             ]
                             Html.option [
                                 prop.text "onEnd"
-                                prop.selected (match state.ResizeMode with OnEnd -> true | _ -> false)
                             ]
                         ]
                     ]

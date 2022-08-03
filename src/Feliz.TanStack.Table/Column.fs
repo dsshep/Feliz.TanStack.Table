@@ -28,6 +28,12 @@ module Column =
                 | _ -> Neither
             state
             
+        static member getIsResizing (column : Column<'T>) : bool =
+            column._obj?getIsResizing()
+    
+        static member getSize (column : Column<'T>) : int =
+            column._obj?getSize()
+            
     type Table =
         
         static member pinColumn (position : ColumnPinningPosition) (column : Column<'T>) (table : Table<'T>) : Table<'T> =

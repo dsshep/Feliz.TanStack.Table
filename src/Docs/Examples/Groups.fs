@@ -242,10 +242,12 @@ let view (state: State) (dispatch: Msg -> unit) =
                                  Html.th [
                                      prop.key header.Id
                                      prop.colSpan header.ColSpan
-                                     prop.flexRender (
-                                         header.IsPlaceholder,
-                                         header.Column.ColumnDef.Header,
-                                         Table.getContext header)
+                                     prop.children [
+                                         Html.flexRender (
+                                             header.IsPlaceholder,
+                                             header.Column.ColumnDef.Header,
+                                             Table.getContext header)
+                                     ]
                                  ]
                          ]
                      ]
@@ -259,7 +261,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
-                                    prop.flexRender(
+                                    Html.flexRender(
                                         cell.Column.ColumnDef.Cell,
                                         Table.getContext cell)
                                 ]
@@ -277,10 +279,12 @@ let view (state: State) (dispatch: Msg -> unit) =
                                 Html.th [
                                     prop.key footer.Id
                                     prop.colSpan footer.ColSpan
-                                    prop.flexRender(
-                                        footer.IsPlaceholder,
-                                        footer.Column.ColumnDef.Footer,
-                                        Table.getContext footer)
+                                    prop.children [
+                                        Html.flexRender(
+                                            footer.IsPlaceholder,
+                                            footer.Column.ColumnDef.Footer,
+                                            Table.getContext footer)
+                                    ]
                                 ]
                         ]
                     ]
