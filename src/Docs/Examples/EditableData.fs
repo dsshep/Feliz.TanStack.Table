@@ -20,7 +20,7 @@ type Person = {
 
 let makeData (count : int) =
     let statuses = [| "relationship"; "complicated"; "single" |]
-    [| for c in 0..count do
+    [| for _ in 0..count do
            { Firstname = Faker.Name.FirstName()
              Lastname = Faker.Name.LastName()
              Age = Faker.DataType.Number(40)
@@ -62,84 +62,92 @@ let defaultColumns : ColumnDefOptionProp<Person> list list = [
       ] ]
 ]
 
+type EditingData = {
+    RowIndex : int
+    ColumnId : string
+    Value : string
+}
+
+type PropertyChange = {
+    EditingData : EditingData
+    NewValue : string
+}
+
 type State = {
     Table : Table<Person>
-    ResizeMode : ColumnResizeMode
-    ResizingHandler : (Event -> Table<Person>) option
+    EditingData : EditingData option
 }
 
 type Msg =
-    | ResizeModeChange of ColumnResizeMode
-    | BeginResize of Event * Header<Person>
-    | Resize of Event * (Event -> Table<Person>)
-    | EndResize
+    | CellClicked of rowIndex: int * columnId: string
+    | PropertyChanged of PropertyChange
+    | FinishedEditing
     
 let private rand = Random()    
 
 let init () =
     let tableProps = [
-        tableProps.data (makeData 100)
+        tableProps.data (makeData 1000)
         tableProps.columns defaultColumns
-        tableProps.columnResizeMode OnChange
-        tableProps.enableColumnResizing true ]
+        tableProps.filteredRowModel()
+        tableProps.paginationRowModel() ]
     
     let table = Table.init<Person> tableProps
     
     { Table = table
-      ResizeMode = OnChange
-      ResizingHandler = None }, Cmd.none
+      EditingData = None }, Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
-    | ResizeModeChange resizeMode ->
-        let table = Table.setColumnSizingMode resizeMode state.Table
+    | CellClicked (rowId, columnId) ->
         { state with
-            ResizeMode = resizeMode
-            Table = table }, Cmd.none
+            EditingData = Some { RowIndex = rowId; ColumnId = columnId; Value = "" } }, Cmd.none
         
-    | BeginResize (event, header) ->
-        let handler = Header.resizeHandler event header state.Table
+    | PropertyChanged propertyChange ->
+        let editingPerson = state.Table.Data[propertyChange.EditingData.RowIndex]
+        let newValue = propertyChange.NewValue
+        
+        let updated, inputValue = 
+            match propertyChange.EditingData.ColumnId with
+            | x when x = nameof(editingPerson.Firstname) -> { editingPerson with Firstname = newValue }, newValue
+            | x when x = nameof(editingPerson.Lastname) -> { editingPerson with Lastname = newValue }, newValue
+            | x when x = nameof(editingPerson.Status) -> { editingPerson with Status = newValue }, newValue
+            | x when x = nameof(editingPerson.Age) ->
+                match Int32.TryParse(newValue) with
+                | true, i -> { editingPerson with Age = i }, newValue
+                | _ -> editingPerson, propertyChange.EditingData.Value
+            | x when x = nameof(editingPerson.Visits) ->
+                match Int32.TryParse(newValue) with
+                | true, i -> { editingPerson with Visits = i }, newValue
+                | _ -> editingPerson, propertyChange.EditingData.Value
+            | x when x = nameof(editingPerson.Progress) ->
+                match Int32.TryParse(newValue) with
+                | true, i -> { editingPerson with Progress = i }, newValue
+                | _ -> editingPerson, propertyChange.EditingData.Value
+            | _ -> editingPerson, propertyChange.EditingData.Value
+        
+        let table =
+            state.Table.Data
+            |> Array.mapi (fun i d -> if i = propertyChange.EditingData.RowIndex then updated else d)
+            |> Table.setData state.Table
+        
         { state with
-            ResizingHandler = Some handler
-            Table = state.Table }, Cmd.none
+            Table = table
+            EditingData = Some { propertyChange.EditingData with Value = inputValue } }, Cmd.none
         
-    | Resize (event, handler) ->
-        let table = handler event
-        { state with
-            Table = table }, Cmd.none
-        
-    | EndResize ->
-        match state.ResizingHandler with
-        | Some _ ->
-            let table = Header.endResize state.Table
-            { state with
-                ResizingHandler = None
-                Table = table }, Cmd.none
-        | None -> state, Cmd.none
+    | FinishedEditing ->
+        { state with EditingData = None }, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
-    let beginResize h e = BeginResize (e, h) |> dispatch
-    let move e = 
-        match state.ResizingHandler with
-         | Some p -> Resize (e, p) |> dispatch
-         | None -> ()
-    let endResize _ = EndResize  |> dispatch
-         
     let table = 
         let thead =
             Html.thead [
                 for headerGroup in Table.getHeaderGroups state.Table do
                      Html.tr [
                          prop.key headerGroup.Id
-                         prop.style [
-                             style.height (length.px 30)
-                             width.fitContent
-                         ]
                          prop.children [
                              for header in headerGroup.Headers do
                                  Html.th [
-                                     prop.onMouseMove move
-                                     prop.onTouchMove move
                                      prop.key header.Id
                                      prop.colSpan header.ColSpan
                                      prop.style [
@@ -151,18 +159,6 @@ let view (state: State) (dispatch: Msg -> unit) =
                                              header.IsPlaceholder,
                                              header.Column.ColumnDef.Header,
                                              Table.getContext header)
-                                         Html.div [
-                                             prop.onMouseDown (beginResize header)
-                                             prop.onTouchStart (beginResize header)
-                                             prop.style [
-                                                 if Column.getIsResizing header.Column && state.ResizeMode = OnEnd then
-                                                     transform.translateX (Table.getDeltaOffset state.Table |> length.px )
-                                             ]
-                                             prop.className [
-                                                 "resizer"
-                                                 if Column.getIsResizing header.Column then "isResizing"
-                                             ]
-                                         ]
                                      ]
                                  ]
                          ]
@@ -177,9 +173,24 @@ let view (state: State) (dispatch: Msg -> unit) =
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
-                                    Html.flexRender(
-                                        cell.Column.ColumnDef.Cell,
-                                        Table.getContext cell)
+                                    prop.onClick (fun _ -> CellClicked (cell.Row.Index, cell.Column.Id) |> dispatch)
+                                    prop.children [
+                                        match state.EditingData with
+                                        | Some editingData when cell.Column.Id = editingData.ColumnId
+                                                                && cell.Row.Index = editingData.RowIndex ->
+                                            Html.input [
+                                                prop.onChange (fun t ->
+                                                    PropertyChanged { EditingData = editingData
+                                                                      NewValue = t } |> dispatch)
+                                                prop.onBlur (fun _ -> FinishedEditing |> dispatch)
+                                                prop.autoFocus true
+                                                prop.value editingData.Value
+                                            ]
+                                        | _ ->
+                                            Html.flexRender(
+                                                cell.Column.ColumnDef.Cell,
+                                                Table.getContext cell)
+                                    ]
                                 ]
                         ]
                     ]
@@ -199,37 +210,7 @@ let view (state: State) (dispatch: Msg -> unit) =
         ]
 
     Html.div [
-        prop.onMouseUp endResize
-        prop.onMouseLeave endResize
-        prop.onTouchEnd endResize
         prop.children [
-            Html.p [
-                prop.className [ Bulma.HasBackgroundWarning; Bulma.M2; Bulma.P2 ]
-                prop.text "Work in progress..."
-            ]
-            Html.div [
-                prop.className [ Bulma.Field ]
-                prop.children [
-                    Html.select [
-                        prop.className [ Bulma.Select ]
-                        prop.onChange (fun (e : Event) ->
-                            match e.target?value, state.ResizeMode with
-                            | "onChange", OnEnd -> ResizeModeChange OnChange |> dispatch
-                            | "onEnd", OnChange -> ResizeModeChange OnEnd |> dispatch
-                            | _ -> ())
-                        prop.value (ColumnResizeMode.toString state.ResizeMode)
-                        prop.children [
-                            Html.option [
-                                prop.text "onChange"
-                            ]
-                            Html.option [
-                                prop.text "onEnd"
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-            
             table
         ]
     ]

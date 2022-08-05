@@ -13,11 +13,14 @@ module rec Table =
     let private createTable (options) = jsNative    
     [<Import("flexRender", from="@tanstack/react-table")>]
     let private innerFlexRender<'T>(comp: obj, context: Context<'T>) = jsNative
-    let private getCoreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/react-table"
     [<Emit("{ ...$0, ...$1, state: { ...$2 }, onStateChange: $3 }")>]
     let private spreadOptions prev options state onStateChange = jsNative
     [<Emit("(typeof $0 === 'function')")>]
     let private isJsFunc o = jsNative
+    
+    let private getCoreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/react-table"
+    let private getFilteredRowModel : unit -> obj = import "getFilteredRowModel" "@tanstack/react-table"
+    let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/react-table"
     
     let rec internal nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
         columnDefs
@@ -62,6 +65,14 @@ module rec Table =
             prop.custom ("columnResizeMode", (ColumnResizeMode.toString resizeMode))
         static member inline enableColumnResizing (enable : bool) =
             prop.custom ("enableColumnResizing", enable)
+        static member inline autoResetPageIndex (autoReset : bool) =
+            prop.custom ("autoResetPageIndex", autoReset)
+            
+        // Row Models
+        static member filteredRowModel() =
+            prop.custom ("getFilteredRowModel", getFilteredRowModel())
+        static member paginationRowModel() =
+            prop.custom ("getPaginationRowModel", getPaginationRowModel())
     
     type Table =
         static member private convertTable (dynamic : obj) (data : 'T []) : Table<'T> =
@@ -89,6 +100,10 @@ module rec Table =
             
         static member getContext (context : #IContext) =
             context.Instance?getContext() :> Context<'T>
+            
+        static member setData (table : Table<'T>) (data : 'T[]) : Table<'T> =
+            table._obj?options?data <- data
+            table
             
         static member private getColumnDef (o : obj) : ColumnDef<'T> =
             if o = null then Unchecked.defaultof<_>
@@ -155,7 +170,7 @@ module rec Table =
                 |> Array.map (fun c -> {
                     _obj = c
                     Id = c?id
-                    Row = Table.getRow c
+                    Row = Table.getRow c?row
                     Column = (Table.getColumn c?column).Value
                 })
             cells
