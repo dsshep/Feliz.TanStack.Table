@@ -79,27 +79,14 @@ let defaultColumns : ColumnDefOptionProp<Person> list list = [
       ] ]
 ]
 
-type ResizeMode =
-    | OnChange
-    | OnEnd
-    static member fromString (s : string) =
-        match s with
-        | "onChange" -> Some OnChange
-        | "onEnd" -> Some OnEnd
-        | _ -> None
-        
-    static member toString = function
-        | OnChange -> "onChange"
-        | OnEnd -> "onEnd"
-
 type State = {
     Table : Table<Person>
-    ResizeMode : ResizeMode
+    ResizeMode : ColumnResizeMode
     ResizingHandler : (Event -> Table<Person>) option
 }
 
 type Msg =
-    | ResizeModeChange of ResizeMode
+    | ResizeModeChange of ColumnResizeMode
     | BeginResize of Event * Header<Person>
     | Resize of Event * (Event -> Table<Person>)
     | EndResize
@@ -121,7 +108,7 @@ let init () =
     let tableProps = [
         tableProps.data defaultData
         tableProps.columns defaultColumns
-        tableProps.columnResizeMode "onChange"
+        tableProps.columnResizeMode OnChange
         tableProps.enableColumnResizing true ]
     
     let table = Table.init<Person> tableProps
@@ -133,10 +120,13 @@ let init () =
 let update (msg: Msg) (state: State) =
     match msg with
     | ResizeModeChange resizeMode ->
-        { state with ResizeMode = resizeMode }, Cmd.none
+        let table = Table.setColumnSizingMode resizeMode state.Table
+        { state with
+            ResizeMode = resizeMode
+            Table = table }, Cmd.none
         
     | BeginResize (event, header) ->
-        let handler = Header.resizeHandler2 event header state.Table
+        let handler = Header.resizeHandler event header state.Table
         { state with
             ResizingHandler = Some handler
             Table = state.Table }, Cmd.none
@@ -149,9 +139,10 @@ let update (msg: Msg) (state: State) =
     | EndResize ->
         match state.ResizingHandler with
         | Some _ ->
+            let table = Header.endResize state.Table
             { state with
                 ResizingHandler = None
-                Table = state.Table }, Cmd.none
+                Table = table }, Cmd.none
         | None -> state, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
@@ -193,6 +184,10 @@ let view (state: State) (dispatch: Msg -> unit) =
                                          Html.div [
                                              prop.onMouseDown (beginResize header)
                                              prop.onTouchStart (beginResize header)
+                                             prop.style [
+                                                 if Column.getIsResizing header.Column && state.ResizeMode = OnEnd then
+                                                     transform.translateX (Table.getDeltaOffset state.Table |> length.px )
+                                             ]
                                              prop.className [
                                                  "resizer"
                                                  if Column.getIsResizing header.Column then "isResizing"
@@ -238,18 +233,17 @@ let view (state: State) (dispatch: Msg -> unit) =
         prop.onMouseLeave endResize
         prop.onTouchEnd endResize
         prop.children [
-            Html.p "Work in progress..."
             Html.div [
                 prop.className [ Bulma.Field ]
                 prop.children [
                     Html.select [
                         prop.className [ Bulma.Select ]
                         prop.onChange (fun (e : Event) ->
-                            match ResizeMode.fromString e.target?value, state.ResizeMode with
-                            | Some onChange, OnEnd -> ResizeModeChange onChange |> dispatch
-                            | Some onEnd, OnChange -> ResizeModeChange onEnd |> dispatch
+                            match e.target?value, state.ResizeMode with
+                            | "onChange", OnEnd -> ResizeModeChange OnChange |> dispatch
+                            | "onEnd", OnChange -> ResizeModeChange OnEnd |> dispatch
                             | _ -> ())
-                        prop.value (ResizeMode.toString state.ResizeMode)
+                        prop.value (ColumnResizeMode.toString state.ResizeMode)
                         prop.children [
                             Html.option [
                                 prop.text "onChange"

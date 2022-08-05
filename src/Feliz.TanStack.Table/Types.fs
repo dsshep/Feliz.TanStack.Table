@@ -15,6 +15,14 @@ module rec Types =
 
     type Context<'T> = interface end
 
+    type ColumnResizeMode =
+        | OnChange
+        | OnEnd
+        static member toString (resizeMode : ColumnResizeMode) =
+            match resizeMode with
+            | OnChange -> "onChange"
+            | OnEnd -> "onEnd"
+    
     type InternalContext<'T> = {
         _obj : obj
         Table : Table<'T>
