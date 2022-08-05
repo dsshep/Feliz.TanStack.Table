@@ -103,7 +103,7 @@ module rec Table =
             
         static member setData (table : Table<'T>) (data : 'T[]) : Table<'T> =
             table._obj?options?data <- data
-            table
+            { _obj = table._obj; Data = data }
             
         static member private getColumnDef (o : obj) : ColumnDef<'T> =
             if o = null then Unchecked.defaultof<_>
