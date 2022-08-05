@@ -1,4 +1,4 @@
-module Examples.Resizing
+module Examples.EditableData
 
 open System
 open Browser.Types
@@ -18,32 +18,15 @@ type Person = {
   Progress: int
 }
 
-let defaultData: Person[] = [|
-    {
-        Firstname =  "Ruthie"
-        Lastname = "Hirthe"
-        Age = 2
-        Visits =217
-        Progress =96
-        Status ="single"
-    }
-    {
-        Firstname =  "Domenico"
-        Lastname = "Swift"
-        Age = 7
-        Visits =497
-        Progress =70
-        Status ="relationship"
-    }
-    {
-        Firstname =  "Omer"
-        Lastname = "Zboncak"
-        Age = 13
-        Visits =667
-        Progress =12
-        Status ="complicated"
-    }
-|]
+let makeData (count : int) =
+    let statuses = [| "relationship"; "complicated"; "single" |]
+    [| for c in 0..count do
+           { Firstname = Faker.Name.FirstName()
+             Lastname = Faker.Name.LastName()
+             Age = Faker.DataType.Number(40)
+             Visits = Faker.DataType.Number(1000)
+             Progress = Faker.DataType.Number(100)
+             Status = (Faker.Helpers.Shuffle statuses)[0] } |]
 
 let defaultColumns : ColumnDefOptionProp<Person> list list = [
     [ columnDef.header "Name"
@@ -95,7 +78,7 @@ let private rand = Random()
 
 let init () =
     let tableProps = [
-        tableProps.data defaultData
+        tableProps.data (makeData 100)
         tableProps.columns defaultColumns
         tableProps.columnResizeMode OnChange
         tableProps.enableColumnResizing true ]
@@ -220,6 +203,10 @@ let view (state: State) (dispatch: Msg -> unit) =
         prop.onMouseLeave endResize
         prop.onTouchEnd endResize
         prop.children [
+            Html.p [
+                prop.className [ Bulma.HasBackgroundWarning; Bulma.M2; Bulma.P2 ]
+                prop.text "Work in progress..."
+            ]
             Html.div [
                 prop.className [ Bulma.Field ]
                 prop.children [

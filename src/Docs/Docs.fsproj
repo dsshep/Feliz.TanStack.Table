@@ -2,14 +2,17 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>App</RootNamespace>
+    <WarningsAsErrors>FS0025</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Css.fs" />
+    <Compile Include="Faker.fs" />
     <Compile Include="Examples\Basic.fs" />
     <Compile Include="Examples\Groups.fs" />
     <Compile Include="Examples\Ordering.fs" />
     <Compile Include="Examples\Pinning.fs" />
     <Compile Include="Examples\Resizing.fs" />
+    <Compile Include="Examples\EditableData.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="Main.fs" />

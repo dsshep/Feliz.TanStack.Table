@@ -14,7 +14,7 @@
         }
     },
     "devDependencies": {
-        "autoprefixer":"^10.4.0",
+        "autoprefixer": "^10.4.0",
         "copy-webpack-plugin": "^9.0.1",
         "core-js": "^3.16.1",
         "cross-os": "^1.4.0",
@@ -24,21 +24,22 @@
         "graceful-fs": "^4.2.8",
         "html-webpack-plugin": "^5.3.2",
         "mini-css-extract-plugin": "^2.2.0",
-        "postcss":"^8.3.11",
-        "postcss-loader":"^6.2.0",
+        "postcss": "^8.3.11",
         "postcss-import": "^14.0.2",
+        "postcss-loader": "^6.2.0",
         "react-dom": "^17.0.2",
         "remotedev": "^0.2.9",
-        "resolve-url-loader":"^4.0.0",
-        "style-loader": "^3.2.1",
+        "resolve-url-loader": "^4.0.0",
         "source-map-loader": "^3.0.0",
+        "style-loader": "^3.2.1",
         "webpack": "^5.49.0",
         "webpack-cli": "^4.7.2",
         "webpack-dev-server": "^4.3.1"
     },
     "dependencies": {
-        "react": "^17.0.2",
+        "@faker-js/faker": "^7.3.0",
         "@fortawesome/fontawesome-free": "^5.15.4",
-        "@tanstack/react-table": "^8.3.3"
+        "@tanstack/react-table": "^8.3.3",
+        "react": "^17.0.2"
     }
 }
