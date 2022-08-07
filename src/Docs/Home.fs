@@ -26,7 +26,7 @@ let view() =
                         prop.className [ Bulma.Subtitle ]
                         prop.text "Getting Started"
                     ]
-                    Html.p [
+                    Html.div [
                         prop.className [ Bulma.Content ]
                         prop.children [
                             Html.ol [

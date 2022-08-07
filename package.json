@@ -4,13 +4,13 @@
         "prestart": "dotnet tool restore",
         "start": "cross-os start",
         "prebuild": "dotnet tool restore",
-        "build": "dotnet fable ./src/Docs --outDir ./.fable-build && vite build"
+        "build": "dotnet fable ./src/Docs --outDir ./.fable-build -s && vite build"
     },
     "cross-os": {
         "start": {
             "darwin": "dotnet fable watch ./src/Docs -s --run vite",
-            "linux": "dotnet fable watch ./src/Docs --outDir ./.fable-build --sourceMaps --run vite",
-            "win32": "dotnet fable watch ./src/Docs --outDir ./.fable-build --sourceMaps --run vite"
+            "linux": "dotnet fable watch ./src/Docs -s --run vite",
+            "win32": "dotnet fable watch ./src/Docs -s --run vite"
         }
     },
     "devDependencies": {

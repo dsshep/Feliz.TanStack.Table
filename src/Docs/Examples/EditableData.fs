@@ -21,7 +21,7 @@ let private isNumber x = jsNative
 
 let makeData (count : int) =
     let statuses = [| "relationship"; "complicated"; "single" |]
-    [| for _ in 0..count do
+    [| for _ in 1..count do
            { Firstname = Faker.Name.FirstName()
              Lastname = Faker.Name.LastName()
              Age = Faker.DataType.Number(40)
