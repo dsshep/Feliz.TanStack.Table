@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
     root: "src/Docs",
+    base: "/Feliz.TanStack.Table/",
     build: {
         outDir: "../../publish/docs",
         emptyOutDir: true,
