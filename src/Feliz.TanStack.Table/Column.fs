@@ -41,58 +41,24 @@ module Column =
             let filterValue = column._obj?getFilterValue()
             if nullOrUndefined filterValue then None else Some filterValue
             
-        static member setFilterValue (value : 'T2 -> 'T2) (column : Column<'T>) : Column<'T> =
+        static member setFilterValue (value : 'T2 option -> 'T2) (column : Column<'T>) : Column<'T> =
             column._obj?setFilterValue(fun x ->
-                ()
-                value x)
+                if (isNullOrUndefined x) then value None
+                else value (Some x))
             column
             
     type Table =
-        
         static member setColumnFilter (value : 'TValue) (column : Column<'T>) : Column<'T> =
             column._obj?setFilterValue(value)
             column
         
         static member pinColumn (position : ColumnPinningPosition) (column : Column<'T>) (table : Table<'T>) : Table<'T> =
-            let pinnedColumns : string[] =
-                column._obj?getLeafColumns()
-                |> Array.map (fun c -> c?id)
-                |> Array.filter (fun c -> c <> null)
-                
-            table._obj?setOptions(fun prev ->
-                let existingPinning : {| left: string[]; right: string[] |} =
-                    prev?state?columnPinning
-                    
-                let existingPinning =
-                    {| existingPinning with
-                        left = if existingPinning.left = null then [||] else existingPinning.left
-                        right = if existingPinning.right = null then [||] else existingPinning.right |}
-                    
-                let columnPinningState =
-                    match position with
-                    | Left ->
-                        {| existingPinning
-                            with left = existingPinning.left
-                                        |> Array.filter (fun c -> pinnedColumns |> Array.contains c |> not)
-                                        |> Array.append pinnedColumns
-                                 right = existingPinning.right
-                                         |> Array.filter (fun c -> pinnedColumns |> Array.contains c |> not) |}
-                    | Right ->
-                        {| existingPinning
-                            with left = existingPinning.left
-                                        |> Array.filter (fun c -> pinnedColumns |> Array.contains c |> not)
-                                 right = existingPinning.right
-                                        |> Array.filter (fun c -> pinnedColumns |> Array.contains c |> not)
-                                        |> Array.append pinnedColumns |}
-                    | Neither ->
-                        {| existingPinning
-                            with left = existingPinning.left
-                                        |> Array.filter (fun c -> pinnedColumns |> Array.contains c |> not)
-                                 right = existingPinning.right
-                                        |> Array.filter (fun c -> pinnedColumns |> Array.contains c |> not)|}
-                
-                prev?state?columnPinning <- columnPinningState
-                setStateChange prev table._obj?options (fun () -> ()))
+            let positionStr =
+                match position with
+                | Left -> "left"
+                | Right -> "right"
+                | _ -> "false"
+            column._obj?pin(positionStr)
             
             table
         

@@ -230,10 +230,10 @@ module rec Types =
         IsResizingColumn: string
         ColumnSizingStart: (string * int)[]
     }
-//    
-//    type PaginationState =
-//        abstract member pageIndex: int
-//        abstract member pageSize: int
+
+    type PaginationState =
+        abstract member pageIndex: int
+        abstract member pageSize: int
 //    
 //    type RowSelectionTableState =
 //        abstract member rowSelection: Dictionary<string, bool>
@@ -336,12 +336,9 @@ module rec Types =
     }
     
     type Table<'T> = {
-        _obj: obj
+        mutable _obj: obj
         Data: 'T []
     }
     
-    type TableState<'T> = {
-        _obj: obj
-        ColumnSizingInfo: ColumnSizingInfoState
-    }
-        
+    type TableState<'T> =
+        abstract member pagination: PaginationState with get

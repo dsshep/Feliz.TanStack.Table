@@ -1,8 +1,10 @@
 module Examples.EditableData
 
 open System
+open Browser.Types
 open Elmish
 open Fable.Core
+open Fable.Core.JsInterop
 open Feliz
 open Feliz.UseElmish
 open Feliz.TanStack.Table
@@ -85,6 +87,13 @@ type FilterChange = {
     Value : string
 }
 
+type PaginateChange =
+    | First
+    | Previous
+    | Next
+    | Last
+    | Index of int
+
 type State = {
     Table : Table<Person>
     EditingData : EditingData option
@@ -95,8 +104,8 @@ type Msg =
     | PropertyChanged of PropertyChange
     | FinishedEditing
     | FilterChanged of FilterChange
-    
-let private rand = Random()    
+    | Paginate of PaginateChange
+    | PageSizeChange of int
 
 let init () =
     let tableProps = [
@@ -149,19 +158,42 @@ let update (msg: Msg) (state: State) =
         { state with EditingData = None }, Cmd.none
         
     | FilterChanged change ->
-        JS.console.log change
         match change.Type with
         | Search ->
             Column.setFilterValue (fun _ -> change.Value) change.Column |> ignore
         | minmax ->
             match Int32.TryParse change.Value, minmax with
             | (true, n), Max ->
-                Column.setFilterValue (fun (min, _) -> (min, n)) change.Column |> ignore
+                Column.setFilterValue
+                    (fun prevOpt ->
+                        match prevOpt with
+                        | Some (Some min, _) -> (Some min, Some n)
+                        | _ -> (None, Some n))
+                    change.Column |> ignore
             | (true, n), Min ->
-                Column.setFilterValue (fun (_, max) -> (n, max)) change.Column |> ignore
+                Column.setFilterValue
+                    (fun prevOpt ->
+                        match prevOpt with
+                        | Some (_, Some max) -> (Some n, Some max)
+                        | _ -> (Some n, None))
+                    change.Column |> ignore
             | _ -> ()
             
         { state with Table = state.Table }, Cmd.none
+        
+    | Paginate paginateChange ->
+        let table = 
+            match paginateChange with
+            | First -> Table.setPageIndex 0 state.Table
+            | Previous -> Table.previousPage state.Table
+            | Next -> Table.nextPage state.Table
+            | Last -> Table.setPageIndex (Table.getPageCount state.Table - 1) state.Table
+            | Index i -> Table.setPageIndex i state.Table
+            
+        { state with Table = table }, Cmd.none
+        
+    | PageSizeChange pageSize ->
+        { state with Table = Table.setPageSize pageSize state.Table }, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
     let filter (column : Column<Person>) (table : Table<Person>) =
@@ -171,7 +203,6 @@ let view (state: State) (dispatch: Msg -> unit) =
             |> Row.getValue column
         
         let columnFilterValue = Column.getFilterValue column
-        //Fable.Core.JS.console.log columnFilterValue
         
         Html.div [
             prop.className [ Bulma.IsFlex ]
@@ -180,14 +211,14 @@ let view (state: State) (dispatch: Msg -> unit) =
                     Html.input [
                         prop.style [ style.width (length.rem 6) ]
                         prop.placeholder "Min..."
-                        prop.value (match columnFilterValue with Some v -> fst v | None -> "")
+                        prop.value (match columnFilterValue with Some (Some v, _) -> fst v | _ -> "")
                         prop.onChange (fun s ->
                             FilterChanged { Type = Min; Value = s; Column = column } |> dispatch)
                     ]
                     Html.input [
                         prop.style [ style.width (length.rem 6) ]
                         prop.placeholder "Max..."
-                        prop.value (match columnFilterValue with Some v -> snd v | None -> "")
+                        prop.value (match columnFilterValue with Some (_, Some v) -> snd v | _ -> "")
                         prop.onChange (fun s ->
                             FilterChanged { Type = Max; Value = s; Column = column } |> dispatch)
                     ]
@@ -199,6 +230,71 @@ let view (state: State) (dispatch: Msg -> unit) =
                         prop.onChange (fun s ->
                             FilterChanged { Type = Search; Value = s; Column = column } |> dispatch)
                     ]
+            ]
+        ]
+        
+    let paginationControls =
+        let selectOptions = Map.ofList [
+            for i in 10..10..50 do
+                i, ($"Show {i}", fun _ -> PageSizeChange i |> dispatch)
+        ]
+        
+        Html.div [
+            prop.className [ Bulma.IsInlineBlock ]
+            prop.children [
+                Html.button [
+                    prop.text "<<"
+                    prop.disabled (Table.hasPreviousPage state.Table |> not)
+                    prop.onClick (fun _ -> Paginate First |> dispatch)
+                ]
+                Html.button [
+                    prop.text "<"
+                    prop.disabled (Table.hasPreviousPage state.Table |> not)
+                    prop.onClick (fun _ -> Paginate Previous |> dispatch)
+                ]
+                Html.button [
+                    prop.text ">"
+                    prop.disabled (Table.hasNextPage state.Table |> not)
+                    prop.onClick (fun _ -> Paginate Next |> dispatch)
+                ]
+                Html.button [
+                    prop.text ">>"
+                    prop.disabled (Table.hasNextPage state.Table |> not)
+                    prop.onClick (fun _ -> Paginate Last |> dispatch)
+                ]
+                Html.p [
+                    Html.text "Page "
+                    Html.text ((Table.getState state.Table).pagination.pageIndex + 1)
+                    Html.text " of "
+                    Html.text (Table.getPageCount state.Table)
+                    Html.text " | Go to page:"
+                ]
+                Html.input [
+                    prop.className [ Bulma.Input ]
+                    prop.type' "number"
+                    prop.style [ style.width (length.rem 4) ]
+                    prop.defaultValue ((Table.getState state.Table).pagination.pageIndex + 1)
+                    prop.onChange (Index >> Paginate >> dispatch)
+                ]
+                Html.div [
+                    prop.className [ Bulma.Select ]
+                    prop.children [
+                        Html.select [
+                            prop.onChange (fun (event : Event) ->
+                                let option = int event.target?value
+                                snd selectOptions[option]())
+                            prop.value $"{(Table.getState state.Table).pagination.pageSize}"
+                            prop.children [
+                                for option in selectOptions do
+                                    Html.option [
+                                        prop.key option.Key
+                                        prop.value option.Key
+                                        prop.text (fst option.Value)
+                                    ]
+                            ]
+                        ]
+                    ]
+                ]
             ]
         ]
     
@@ -269,6 +365,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                         tbody
                     ]
                 ]
+                paginationControls
             ]
         ]
 

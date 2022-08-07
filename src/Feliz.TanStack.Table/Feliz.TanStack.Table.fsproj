@@ -21,6 +21,7 @@
         <Compile Include="Table.fs" />
         <Compile Include="Visibility.fs" />
         <Compile Include="Ordering.fs" />
+        <Compile Include="Pagination.fs" />
         <Compile Include="Header.fs" />
         <Compile Include="Column.fs" />
         <Compile Include="Row.fs" />

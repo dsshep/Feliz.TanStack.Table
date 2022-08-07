@@ -23,27 +23,16 @@ module Visibility =
             dynamicColumns |> Array.choose Table.getColumn
         
         static member setColumnVisibility (column : Column<'T>) (isVisible : bool) (table : Table<'T>) : Table<'T> =
-            updateRecordStateProperty
-                (fun s -> s?columnVisibility)
-                (fun s n -> s?columnVisibility <- n)
-                column._obj?id
-                isVisible
-                table
+            let r = createObj [ column.Id, isVisible ]
+            table._obj?setColumnVisibility(r)
+            table
         
         static member resetColumnVisibility (defaultState : bool) (table : Table<'T>) : Table<'T> =
-            updateStateFunctionCall (fun t -> t?resetColumnVisibility(defaultState)) table
+            table._obj?resetColumnVisibility(defaultState)
+            table
             
         static member toggleAllColumnsVisible (value : bool) (table : Table<'T>) =
-            let allColumns : Column<'T>[] = table._obj?getAllLeafColumns()
-            let visibilityState = createObj [
-                for c in allColumns do
-                    c?id ==> value
-            ]
-            
-            table._obj?setOptions(fun prev ->
-                prev?state?columnVisibility <- visibilityState
-                setStateChange prev table._obj?options (fun () -> ()))
-            
+            table._obj?toggleAllColumnsVisible(value)
             table
             
         static member getIsAllColumnsVisible (table : Table<'T>) : bool =

@@ -14,13 +14,19 @@ module rec Table =
     [<Import("flexRender", from="@tanstack/react-table")>]
     let private innerFlexRender<'T>(comp: obj, context: Context<'T>) = jsNative
     [<Emit("{ ...$0, ...$1, state: { ...$2 }, onStateChange: $3 }")>]
-    let private spreadOptions prev options state onStateChange = jsNative
+    let private spreadInitialOptions prev options state onStateChange = jsNative
+    
+    [<Emit("{ ...$0, ...$1, onStateChange: $2 }")>]
+    let internal setStateChange prev options stateChange = jsNative
+    
+    [<Emit("{ ...$0, onStateChange: $1 }")>]
+    let private spreadSecondaryOptions prev onStateChange = jsNative
     [<Emit("(typeof $0 === 'function')")>]
     let private isJsFunc o = jsNative
     
-    let private getCoreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/react-table"
-    let private getFilteredRowModel : unit -> obj = import "getFilteredRowModel" "@tanstack/react-table"
-    let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/react-table"
+    let private getCoreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/table-core"
+    let private getFilteredRowModel : unit -> obj = import "getFilteredRowModel" "@tanstack/table-core"
+    let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/table-core"
     
     let rec internal nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
         columnDefs
@@ -73,11 +79,33 @@ module rec Table =
             prop.custom ("getFilteredRowModel", getFilteredRowModel())
         static member paginationRowModel() =
             prop.custom ("getPaginationRowModel", getPaginationRowModel())
+            
+            
+        // debug
+        static member debugAll() =
+            prop.custom("debugAll", true)
+        static member debugTable() =
+            prop.custom ("debugTable", true)
     
     type Table =
         static member private convertTable (dynamic : obj) (data : 'T []) : Table<'T> =
             { _obj = dynamic
               Data = data }
+            
+        static member internal onStateChange (table : Table<'T>) : 'T2 -> 'T3 =
+            fun updater ->
+                let next = (Table.onStateChange table)
+                if isJsFunc updater then
+                    let state = table._obj?getState()
+                    let updatedState = (!!updater)(state)
+                    
+                    table._obj?setOptions(fun prev ->
+                        prev?state <- updatedState
+                        let options = setStateChange prev table._obj?options next
+                        options)
+                else
+                    JS.debugger()
+                    setStateChange2 (createObj []) next
             
         static member init<'T> (options: IReactProperty list) : Table<'T> =
             let coreProps : IReactProperty list = [
@@ -89,14 +117,22 @@ module rec Table =
             
             let props = createObj !!(options |> List.append coreProps)
             let table = createTable props
-            let initialState = table?initialState
+            let state = table?initialState
             
             table?setOptions(fun prev ->
-                let options = spreadOptions prev props initialState (fun () -> ())
+                let options = spreadInitialOptions prev props state (fun () -> ())
                 options)
             
             let data = props?data
-            Table.convertTable table data
+            let table = Table.convertTable table data
+            
+            table._obj?setOptions(fun prev ->
+                let options =
+                    spreadSecondaryOptions
+                        prev
+                        (Table.onStateChange table)
+                options)
+            table
             
         static member getContext (context : #IContext) =
             context.Instance?getContext() :> Context<'T>

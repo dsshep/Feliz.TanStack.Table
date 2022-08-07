@@ -51,7 +51,7 @@ module Sizing =
                 if applyChange then
                     merge prev?state?columnSizing (createObj newColumnSizing)
                 else prev?state?columnSizing
-            setStateChange prev table._obj?options (fun () -> ()) )
+            setStateChange prev table._obj?options (Table.onStateChange table) )
         table
     
     type Column =
@@ -59,21 +59,13 @@ module Sizing =
             column._obj?getCanResize()
             
     type Table = 
-        static member setColumnSizing (size : int) (column : Column<'T>) (table : Table<'T>) : Table<'T> =
-            updateRecordStateProperty
-                (fun s -> s?columnVisibility)
-                (fun s n -> s?columnVisibility <- n)
-                column._obj?id
-                size
-                table
-                
         static member getDeltaOffset (table : Table<'T>) : int =
             table._obj?getState()?columnSizingInfo?deltaOffset
            
         static member setColumnSizingMode (sizingMode : ColumnResizeMode) (table : Table<'T>) : Table<'T> =
             table._obj?setOptions(fun prev ->
                 prev?columnResizeMode <- (ColumnResizeMode.toString sizingMode)
-                setStateChange prev table._obj?options (fun () -> ()))
+                setStateChange prev table._obj?options (Table.onStateChange table))
             table
            
     type Header =
@@ -88,7 +80,7 @@ module Sizing =
                 let options = createObj []
                 
                 prev?state?columnSizingInfo <- options
-                setStateChange prev table._obj?options (fun () -> ()))
+                setStateChange prev table._obj?options (Table.onStateChange table))
             
             table
         
@@ -123,15 +115,7 @@ module Sizing =
                 ]
                 
                 prev?state?columnSizingInfo <- options
-                setStateChange prev table._obj?options (fun () -> ()))
-            
-            let table =
-                updateRecordStateProperty
-                    (fun s -> s?columnSizingInfo)
-                    (fun s n -> s?columnSizingInfo <- n)
-                    column._obj?id
-                    startSize
-                    table
+                setStateChange prev table._obj?options (Table.onStateChange table))
             
             fun event ->
                 if event.cancelable then
