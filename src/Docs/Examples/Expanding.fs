@@ -1,10 +1,11 @@
-module Examples.EditableData
+module Examples.Expanding
 
 open System
 open Browser.Types
 open Elmish
 open Fable.Core
 open Fable.Core.JsInterop
+open Fable.React
 open Feliz
 open Feliz.UseElmish
 open Feliz.TanStack.Table
@@ -17,6 +18,11 @@ type Person = {
   Status: string
   Progress: int
 }
+
+type IsHeaderable =
+    | Yes
+    | No
+    with interface ReactElement 
 
 [<Emit("typeof $0 === 'number'")>]
 let private isNumber x = jsNative
@@ -31,7 +37,7 @@ let defaultColumns : ColumnDefOptionProp<Person> list list = [
           [ columnDef.accessorFn (fun p -> p.Lastname)
             columnDef.id "Lastname"
             columnDef.cell (fun info -> info.getValue<_>())
-            columnDef.header (fun _ -> Html.span [ prop.text "Last Name" ])
+            columnDef.header (fun _ -> Html.p "Hi")
             columnDef.footer (fun props -> props.column.id) ]
       ] ]
     [ columnDef.header "Info"
@@ -103,6 +109,7 @@ let init () =
         tableProps.columns defaultColumns
         tableProps.filteredRowModel()
         tableProps.paginationRowModel()
+        tableProps.ExpandedRowModel()
         tableProps.autoResetPageIndex true ]
     
     let table = Table.init<Person> tableProps
@@ -293,10 +300,10 @@ let view (state: State) (dispatch: Msg -> unit) =
                                      prop.colSpan header.ColSpan
                                      prop.children [
                                          if header.IsPlaceholder then Html.none else
-                                         Html.flexRender (
-                                             header.IsPlaceholder,
-                                             header.Column.ColumnDef.Header,
-                                             Table.getContext header)
+                                             Html.flexRender (
+                                                 header.IsPlaceholder,
+                                                 header.Column.ColumnDef.Header,
+                                                 Table.getContext header)
                                          if Column.getCanFilter header.Column then 
                                             filter header.Column state.Table
                                          else Html.none

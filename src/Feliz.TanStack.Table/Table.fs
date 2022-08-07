@@ -27,6 +27,7 @@ module rec Table =
     let private getCoreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/table-core"
     let private getFilteredRowModel : unit -> obj = import "getFilteredRowModel" "@tanstack/table-core"
     let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/table-core"
+    let private getExpandedRowModel : unit -> obj = import "getExpandedRowModel" "@tanstack/table-core"
     
     let rec internal nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
         columnDefs
@@ -79,6 +80,9 @@ module rec Table =
             prop.custom ("getFilteredRowModel", getFilteredRowModel())
         static member paginationRowModel() =
             prop.custom ("getPaginationRowModel", getPaginationRowModel())
+        
+        static member ExpandedRowModel() =
+            prop.custom ("getExpandedRowModel", getExpandedRowModel())
             
             
         // debug
