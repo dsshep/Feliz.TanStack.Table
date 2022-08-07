@@ -23,6 +23,7 @@
         <Compile Include="Ordering.fs" />
         <Compile Include="Header.fs" />
         <Compile Include="Column.fs" />
+        <Compile Include="Row.fs" />
         <Compile Include="Sizing.fs" />
         <Compile Include="TableState.fs" />
     </ItemGroup>

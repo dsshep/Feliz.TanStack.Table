@@ -237,11 +237,18 @@ module rec Table =
         static member getAllLeafColumns (table : Table<'T>) : Column<'T>[] =
             table._obj?getAllLeafColumns() |> Array.choose Table.getColumn
             
+        static member private objToRowModel (o : obj) : RowModel<'T> =
+            let rows = Table.convertToRows o?rows
+            let flatRows = Table.convertToRows o?flatRows
+            { _obj = o 
+              Rows = rows
+              FlatRows = flatRows }
+            
         static member getRowModel (table : Table<'T>) : RowModel<'T> =
-            let rowModel = table._obj?getRowModel()
-            let rows = Table.convertToRows rowModel?rows
-            { _obj = rowModel 
-              Rows = rows }
+            Table.objToRowModel (table._obj?getRowModel())
+            
+        static member getPreFilteredRowModel (table : Table<'T>) : RowModel<'T> =
+            Table.objToRowModel (table._obj?getPreFilteredRowModel())
             
         static member getCenterTotalSize (table : Table<'T>) : int =
             table._obj?getCenterTotalSize()

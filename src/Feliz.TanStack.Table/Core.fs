@@ -11,6 +11,9 @@ module internal Core =
     [<Emit("{ ...$0, ...$1, onStateChange: $2 }")>]
     let internal setStateChange prev options stateChange = jsNative
     
+    [<Emit("$0 == null")>]
+    let internal nullOrUndefined x : bool = jsNative
+    
     let internal updateRecordStateProperty
         (getFn: obj -> obj)
         (setFn: obj -> obj -> unit)

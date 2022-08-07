@@ -1,13 +1,11 @@
 module Examples.EditableData
 
 open System
-open Browser.Types
 open Elmish
-open Fable.Core.JsInterop
+open Fable.Core
 open Feliz
 open Feliz.UseElmish
 open Feliz.TanStack.Table
-open Feliz.style
 
 type Person = {
   Firstname: string
@@ -17,6 +15,9 @@ type Person = {
   Status: string
   Progress: int
 }
+
+[<Emit("typeof $0 === 'number'")>]
+let private isNumber x = jsNative
 
 let makeData (count : int) =
     let statuses = [| "relationship"; "complicated"; "single" |]
@@ -73,6 +74,17 @@ type PropertyChange = {
     NewValue : string
 }
 
+type FilterChangeType =
+    | Min
+    | Max
+    | Search
+
+type FilterChange = {
+    Column : Column<Person>
+    Type : FilterChangeType
+    Value : string
+}
+
 type State = {
     Table : Table<Person>
     EditingData : EditingData option
@@ -82,6 +94,7 @@ type Msg =
     | CellClicked of rowIndex: int * columnId: string
     | PropertyChanged of PropertyChange
     | FinishedEditing
+    | FilterChanged of FilterChange
     
 let private rand = Random()    
 
@@ -90,7 +103,8 @@ let init () =
         tableProps.data (makeData 1000)
         tableProps.columns defaultColumns
         tableProps.filteredRowModel()
-        tableProps.paginationRowModel() ]
+        tableProps.paginationRowModel()
+        tableProps.autoResetPageIndex true ]
     
     let table = Table.init<Person> tableProps
     
@@ -109,23 +123,19 @@ let update (msg: Msg) (state: State) =
         
         let updated, inputValue = 
             match propertyChange.EditingData.ColumnId with
-            | x when x = nameof(editingPerson.Firstname) -> { editingPerson with Firstname = newValue }, newValue
-            | x when x = nameof(editingPerson.Lastname) -> { editingPerson with Lastname = newValue }, newValue
-            | x when x = nameof(editingPerson.Status) -> { editingPerson with Status = newValue }, newValue
-            | x when x = nameof(editingPerson.Age) ->
+            | prop when prop = nameof(editingPerson.Firstname) -> { editingPerson with Firstname = newValue }, newValue
+            | prop when prop = nameof(editingPerson.Lastname) -> { editingPerson with Lastname = newValue }, newValue
+            | prop when prop = nameof(editingPerson.Status) -> { editingPerson with Status = newValue }, newValue
+            | prop ->
                 match Int32.TryParse(newValue) with
-                | true, i -> { editingPerson with Age = i }, newValue
+                | true, n when prop = nameof(editingPerson.Age) ->
+                    { editingPerson with Age = n }, newValue
+                | true, n when prop = nameof(editingPerson.Visits) ->
+                    { editingPerson with Visits = n }, newValue
+                | true, n when prop = nameof(editingPerson.Progress) ->
+                    { editingPerson with Progress = n }, newValue
                 | _ -> editingPerson, propertyChange.EditingData.Value
-            | x when x = nameof(editingPerson.Visits) ->
-                match Int32.TryParse(newValue) with
-                | true, i -> { editingPerson with Visits = i }, newValue
-                | _ -> editingPerson, propertyChange.EditingData.Value
-            | x when x = nameof(editingPerson.Progress) ->
-                match Int32.TryParse(newValue) with
-                | true, i -> { editingPerson with Progress = i }, newValue
-                | _ -> editingPerson, propertyChange.EditingData.Value
-            | _ -> editingPerson, propertyChange.EditingData.Value
-        
+                
         let table =
             state.Table.Data
             |> Array.mapi (fun i d -> if i = propertyChange.EditingData.RowIndex then updated else d)
@@ -138,7 +148,60 @@ let update (msg: Msg) (state: State) =
     | FinishedEditing ->
         { state with EditingData = None }, Cmd.none
         
+    | FilterChanged change ->
+        JS.console.log change
+        match change.Type with
+        | Search ->
+            Column.setFilterValue (fun _ -> change.Value) change.Column |> ignore
+        | minmax ->
+            match Int32.TryParse change.Value, minmax with
+            | (true, n), Max ->
+                Column.setFilterValue (fun (min, _) -> (min, n)) change.Column |> ignore
+            | (true, n), Min ->
+                Column.setFilterValue (fun (_, max) -> (n, max)) change.Column |> ignore
+            | _ -> ()
+            
+        { state with Table = state.Table }, Cmd.none
+        
 let view (state: State) (dispatch: Msg -> unit) =
+    let filter (column : Column<Person>) (table : Table<Person>) =
+        let firstValue =
+            (Table.getPreFilteredRowModel table).FlatRows
+            |> Array.head
+            |> Row.getValue column
+        
+        let columnFilterValue = Column.getFilterValue column
+        //Fable.Core.JS.console.log columnFilterValue
+        
+        Html.div [
+            prop.className [ Bulma.IsFlex ]
+            prop.children [
+                if isNumber firstValue then
+                    Html.input [
+                        prop.style [ style.width (length.rem 6) ]
+                        prop.placeholder "Min..."
+                        prop.value (match columnFilterValue with Some v -> fst v | None -> "")
+                        prop.onChange (fun s ->
+                            FilterChanged { Type = Min; Value = s; Column = column } |> dispatch)
+                    ]
+                    Html.input [
+                        prop.style [ style.width (length.rem 6) ]
+                        prop.placeholder "Max..."
+                        prop.value (match columnFilterValue with Some v -> snd v | None -> "")
+                        prop.onChange (fun s ->
+                            FilterChanged { Type = Max; Value = s; Column = column } |> dispatch)
+                    ]
+                else
+                    Html.input [
+                        prop.style [ style.width (length.rem 8) ]
+                        prop.placeholder "Search..."
+                        prop.value (match columnFilterValue with Some v -> string v | None -> "")
+                        prop.onChange (fun s ->
+                            FilterChanged { Type = Search; Value = s; Column = column } |> dispatch)
+                    ]
+            ]
+        ]
+    
     let table = 
         let thead =
             Html.thead [
@@ -150,15 +213,15 @@ let view (state: State) (dispatch: Msg -> unit) =
                                  Html.th [
                                      prop.key header.Id
                                      prop.colSpan header.ColSpan
-                                     prop.style [
-                                         style.width (Header.getSize header)
-                                         position.relative
-                                     ]
                                      prop.children [
+                                         if header.IsPlaceholder then Html.none else
                                          Html.flexRender (
                                              header.IsPlaceholder,
                                              header.Column.ColumnDef.Header,
                                              Table.getContext header)
+                                         if Column.getCanFilter header.Column then 
+                                            filter header.Column state.Table
+                                         else Html.none
                                      ]
                                  ]
                          ]

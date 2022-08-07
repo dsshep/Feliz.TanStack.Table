@@ -34,7 +34,24 @@ module Column =
         static member getSize (column : Column<'T>) : int =
             column._obj?getSize()
             
+        static member getCanFilter (column : Column<'T>) : bool =
+            column._obj?getCanFilter()
+            
+        static member getFilterValue (column : Column<'T>) : 'T2 option =
+            let filterValue = column._obj?getFilterValue()
+            if nullOrUndefined filterValue then None else Some filterValue
+            
+        static member setFilterValue (value : 'T2 -> 'T2) (column : Column<'T>) : Column<'T> =
+            column._obj?setFilterValue(fun x ->
+                ()
+                value x)
+            column
+            
     type Table =
+        
+        static member setColumnFilter (value : 'TValue) (column : Column<'T>) : Column<'T> =
+            column._obj?setFilterValue(value)
+            column
         
         static member pinColumn (position : ColumnPinningPosition) (column : Column<'T>) (table : Table<'T>) : Table<'T> =
             let pinnedColumns : string[] =

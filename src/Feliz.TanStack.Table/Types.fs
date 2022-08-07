@@ -332,6 +332,7 @@ module rec Types =
     type RowModel<'T> = {
         _obj: obj
         Rows: Row<'T> []
+        FlatRows: Row<'T>[]
     }
     
     type Table<'T> = {
