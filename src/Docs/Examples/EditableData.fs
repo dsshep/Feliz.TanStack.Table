@@ -226,7 +226,7 @@ let view (state: State) (dispatch: Msg -> unit) =
     let paginationControls =
         let selectOptions = Map.ofList [
             for i in 10..10..50 do
-                i, ($"Show {i}", fun _ -> PageSizeChange i |> dispatch)
+                string i, ($"Show {i}", fun _ -> PageSizeChange i |> dispatch)
         ]
         
         let pageControl (text : string) isDisabled onClick =
@@ -241,7 +241,7 @@ let view (state: State) (dispatch: Msg -> unit) =
             prop.className [ Bulma.IsInlineBlock ]
             prop.children [
                 pageControl "<<" (Table.hasPreviousPage state.Table |> not) (fun _ -> Paginate First |> dispatch)
-                pageControl "<" (Table.hasPreviousPage state.Table |> not) (fun _ -> Paginate First |> dispatch)
+                pageControl "<" (Table.hasPreviousPage state.Table |> not) (fun _ -> Paginate Previous |> dispatch)
                 pageControl ">" (Table.hasNextPage state.Table |> not) (fun _ -> Paginate Next |> dispatch)
                 pageControl ">>" (Table.hasNextPage state.Table |> not) (fun _ -> Paginate Last |> dispatch)
                 Html.p [
@@ -262,9 +262,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                     prop.className [ Bulma.Select ]
                     prop.children [
                         Html.select [
-                            prop.onChange (fun (event : Event) ->
-                                let option = int event.target?value
-                                snd selectOptions[option]())
+                            prop.onChange (fun (event : Event) -> snd selectOptions[event.target?value]())
                             prop.value $"{(Table.getState state.Table).pagination.pageSize}"
                             prop.children [
                                 for option in selectOptions do
