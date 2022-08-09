@@ -14,13 +14,13 @@ module Column =
     type Column =
         
         static member getIsVisible (column : Column<'T>) : bool =
-            column._obj?getIsVisible()
+            column?getIsVisible()
 
         static member getCanPin (column : Column<'T>) : bool =
-            column._obj?getCanPin()
+            column?getCanPin()
         
         static member getIsPinned (column : Column<'T>) : ColumnPinningPosition =
-            let isPinned : string = column._obj?getIsPinned()
+            let isPinned : string = column?getIsPinned()
             let state =
                 match isPinned with
                 | "left" -> Left
@@ -29,27 +29,27 @@ module Column =
             state
             
         static member getIsResizing (column : Column<'T>) : bool =
-            column._obj?getIsResizing()
+            column?getIsResizing()
     
         static member getSize (column : Column<'T>) : int =
-            column._obj?getSize()
+            column?getSize()
             
         static member getCanFilter (column : Column<'T>) : bool =
-            column._obj?getCanFilter()
+            column?getCanFilter()
             
         static member getFilterValue (column : Column<'T>) : 'T2 option =
-            let filterValue = column._obj?getFilterValue()
+            let filterValue = column?getFilterValue()
             if nullOrUndefined filterValue then None else Some filterValue
             
         static member setFilterValue (value : 'T2 option -> 'T2) (column : Column<'T>) : Column<'T> =
-            column._obj?setFilterValue(fun x ->
+            column?setFilterValue(fun x ->
                 if (isNullOrUndefined x) then value None
                 else value (Some x))
             column
             
     type Table =
         static member setColumnFilter (value : 'TValue) (column : Column<'T>) : Column<'T> =
-            column._obj?setFilterValue(value)
+            column?setFilterValue(value)
             column
         
         static member pinColumn (position : ColumnPinningPosition) (column : Column<'T>) (table : Table<'T>) : Table<'T> =
@@ -58,7 +58,7 @@ module Column =
                 | Left -> "left"
                 | Right -> "right"
                 | _ -> "false"
-            column._obj?pin(positionStr)
+            column?pin(positionStr)
             
             table
         

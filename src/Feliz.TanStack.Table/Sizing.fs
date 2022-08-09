@@ -18,7 +18,7 @@ module Sizing =
             c, round ((max (h + h * deltaPercentage) 0.) * 100.) / 100. |> box)
     
     let private calculateChange (applyChange : bool) (event : Event option) (table : Table<'T>) : Table<'T> =
-        table._obj?setOptions(fun prev ->
+        table?_obj?setOptions(fun prev ->
             let old = prev?state?columnSizingInfo
             
             let processEvent() : (string * obj)[] =
@@ -51,49 +51,49 @@ module Sizing =
                 if applyChange then
                     merge prev?state?columnSizing (createObj newColumnSizing)
                 else prev?state?columnSizing
-            setStateChange prev table._obj?options (Table.onStateChange table) )
+            setStateChange prev table?_obj?options (Table.onStateChange table) )
         table
     
     type Column =
         static member getCanResize (column : Column<'T>) : bool =
-            column._obj?getCanResize()
+            column?_obj?getCanResize()
             
     type Table = 
         static member getDeltaOffset (table : Table<'T>) : int =
-            table._obj?getState()?columnSizingInfo?deltaOffset
+            table?_obj?getState()?columnSizingInfo?deltaOffset
            
         static member setColumnSizingMode (sizingMode : ColumnResizeMode) (table : Table<'T>) : Table<'T> =
-            table._obj?setOptions(fun prev ->
+            table?_obj?setOptions(fun prev ->
                 prev?columnResizeMode <- (ColumnResizeMode.toString sizingMode)
-                setStateChange prev table._obj?options (Table.onStateChange table))
+                setStateChange prev table?_obj?options (Table.onStateChange table))
             table
            
     type Header =
         static member endResize (table : Table<'T>) : Table<'T> =
             let table = 
                 calculateChange
-                    (table._obj?options?columnResizeMode = (ColumnResizeMode.toString OnEnd))
+                    (table?_obj?options?columnResizeMode = (ColumnResizeMode.toString OnEnd))
                     None
                     table
             
-            table._obj?setOptions(fun prev ->
+            table?_obj?setOptions(fun prev ->
                 let options = createObj []
                 
                 prev?state?columnSizingInfo <- options
-                setStateChange prev table._obj?options (Table.onStateChange table))
+                setStateChange prev table?_obj?options (Table.onStateChange table))
             
             table
         
         static member resizeHandler (event : Event) (header : Header<'T>) (table : Table<'T>) : Event -> Table<'T> =
-            let column = header.Column
+            let column = header.column
             let startSize = Header.getSize header
             let leafHeaders = Header.getLeafHeaders header
             
             let columnSizingStart =
                 if leafHeaders.Length <> 0 then
                     leafHeaders
-                    |> Array.map (fun h -> h.Column.Id, Column.getSize h.Column |> box)
-                else [| header.Column.Id, Column.getSize header.Column |]
+                    |> Array.map (fun h -> h.column.id, Column.getSize h.column |> box)
+                else [| header.column.id, Column.getSize header.column |]
             
             let isTouchStartEvent e =
                 !!e?``type`` = "touchstart"
@@ -104,18 +104,18 @@ module Sizing =
                     round x
                 else event?clientX
             
-            table._obj?setOptions(fun prev ->
+            table?_obj?setOptions(fun prev ->
                 let options = createObj [
                     "startOffset" ==> clientX
                     "startSize" ==> startSize
                     "deltaOffset" ==> 0
                     "deltaPercentage" ==> 0
                     "columnSizingStart" ==> columnSizingStart
-                    "isResizingColumn" ==> column.Id
+                    "isResizingColumn" ==> column.id
                 ]
                 
                 prev?state?columnSizingInfo <- options
-                setStateChange prev table._obj?options (Table.onStateChange table))
+                setStateChange prev table?_obj?options (Table.onStateChange table))
             
             fun event ->
                 if event.cancelable then
@@ -123,7 +123,7 @@ module Sizing =
                     event.stopPropagation()
                 
                 calculateChange
-                    (table._obj?options?columnResizeMode = (ColumnResizeMode.toString OnChange))
+                    (table?_obj?options?columnResizeMode = (ColumnResizeMode.toString OnChange))
                     (Some event)
                     table
         

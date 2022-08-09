@@ -147,37 +147,37 @@ let view (state: State) (dispatch: Msg -> unit) =
             Html.thead [
                 for headerGroup in Table.getHeaderGroups state.Table do
                      Html.tr [
-                         prop.key headerGroup.Id
+                         prop.key headerGroup.id
                          prop.style [
                              style.height (length.px 30)
                              width.fitContent
                          ]
                          prop.children [
-                             for header in headerGroup.Headers do
+                             for header in headerGroup.headers do
                                  Html.th [
                                      prop.onMouseMove move
                                      prop.onTouchMove move
-                                     prop.key header.Id
-                                     prop.colSpan header.ColSpan
+                                     prop.key header.id
+                                     prop.colSpan header.colSpan
                                      prop.style [
                                          style.width (Header.getSize header)
                                          position.relative
                                      ]
                                      prop.children [
                                          Html.flexRender (
-                                             header.IsPlaceholder,
-                                             header.Column.ColumnDef.Header,
+                                             header.isPlaceholder,
+                                             header.column.columnDef.header,
                                              Table.getContext header)
                                          Html.div [
                                              prop.onMouseDown (beginResize header)
                                              prop.onTouchStart (beginResize header)
                                              prop.style [
-                                                 if Column.getIsResizing header.Column && state.ResizeMode = OnEnd then
+                                                 if Column.getIsResizing header.column && state.ResizeMode = OnEnd then
                                                      transform.translateX (Table.getDeltaOffset state.Table |> length.px )
                                              ]
                                              prop.className [
                                                  "resizer"
-                                                 if Column.getIsResizing header.Column then "isResizing"
+                                                 if Column.getIsResizing header.column then "isResizing"
                                              ]
                                          ]
                                      ]
@@ -188,14 +188,14 @@ let view (state: State) (dispatch: Msg -> unit) =
             
         let tbody =
             Html.tbody [
-                for row in (Table.getRowModel state.Table).Rows do
+                for row in (Table.getRowModel state.Table).rows do
                     Html.tr [
-                        prop.key row.Id
+                        prop.key row.id
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
                                     Html.flexRender(
-                                        cell.Column.ColumnDef.Cell,
+                                        cell.column.columnDef.cell,
                                         Table.getContext cell)
                                 ]
                         ]

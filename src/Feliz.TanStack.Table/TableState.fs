@@ -6,6 +6,6 @@ open Fable.Core.JsInterop
 module TableState = 
     type Table = 
         static member getState (table : Table<'T>) : TableState<'T> =
-            let dynamicState = table._obj?getState()
+            let dynamicState = table?_obj?getState()
             dynamicState
             

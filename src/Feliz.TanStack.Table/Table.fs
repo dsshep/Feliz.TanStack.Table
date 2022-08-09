@@ -24,6 +24,9 @@ module rec Table =
     [<Emit("(typeof $0 === 'function')")>]
     let private isJsFunc o = jsNative
     
+    [<Emit("{ _obj: $0 }")>]
+    let private wrapObj o = jsNative
+    
     let private getCoreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/table-core"
     let private getFilteredRowModel : unit -> obj = import "getFilteredRowModel" "@tanstack/table-core"
     let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/table-core"
@@ -60,6 +63,8 @@ module rec Table =
             prop.custom ("data", data)
         static member columns<'T> (columns: ColumnDefOptionProp<'T> list list) =
             prop.custom ("columns", (nativeColumnDefs columns))
+        static member getSubRows<'T, 'T2> (fn : 'T -> 'T2) =
+            prop.custom ("getSubRows", fn)
         static member inline onColumnVisibilityChange (fn: Dictionary<string, bool> -> Dictionary<string, bool>) =
             prop.custom ("onColumnVisibilityChange", fn)
         static member inline onColumnOrderChange (fn: string[] -> string[]) =
@@ -80,10 +85,8 @@ module rec Table =
             prop.custom ("getFilteredRowModel", getFilteredRowModel())
         static member paginationRowModel() =
             prop.custom ("getPaginationRowModel", getPaginationRowModel())
-        
-        static member ExpandedRowModel() =
+        static member expandedRowModel() =
             prop.custom ("getExpandedRowModel", getExpandedRowModel())
-            
             
         // debug
         static member debugAll() =
@@ -92,20 +95,16 @@ module rec Table =
             prop.custom ("debugTable", true)
     
     type Table =
-        static member private convertTable (dynamic : obj) (data : 'T []) : Table<'T> =
-            { _obj = dynamic
-              Data = data }
-            
         static member internal onStateChange (table : Table<'T>) : 'T2 -> 'T3 =
             fun updater ->
                 let next = (Table.onStateChange table)
                 if isJsFunc updater then
-                    let state = table._obj?getState()
+                    let state = table?_obj?getState()
                     let updatedState = (!!updater)(state)
                     
-                    table._obj?setOptions(fun prev ->
+                    table?_obj?setOptions(fun prev ->
                         prev?state <- updatedState
-                        let options = setStateChange prev table._obj?options next
+                        let options = setStateChange prev table?_obj?options next
                         options)
                 else
                     JS.debugger()
@@ -128,9 +127,11 @@ module rec Table =
                 options)
             
             let data = props?data
-            let table = Table.convertTable table data
+            let table =
+                wrapObj table
+                |> merge (createObj [ "Data" ==> data ])
             
-            table._obj?setOptions(fun prev ->
+            table?_obj?setOptions(fun prev ->
                 let options =
                     spreadSecondaryOptions
                         prev
@@ -138,165 +139,84 @@ module rec Table =
                 options)
             table
             
-        static member getContext (context : #IContext) =
-            context.Instance?getContext() :> Context<'T>
-            
         static member setData (table : Table<'T>) (data : 'T[]) : Table<'T> =
-            table._obj?options?data <- data
-            { _obj = table._obj; Data = data }
+            table?_obj?options?data <- data
+            let table =
+                wrapObj (table?_obj)
+                |> merge (createObj [ "Data" ==> data ])
             
-        static member private getColumnDef (o : obj) : ColumnDef<'T> =
-            if o = null then Unchecked.defaultof<_>
-            else 
-                { _obj = o
-                  Id = o?id
-                  AccessorKey = o?accessorKey
-                  Header = o?header
-                  Footer = o?footer
-                  Cell = if isJsFunc o?cell then Func o?cell else String o?cell }
-            
-        static member getCell (o : obj) : Cell<'T> =
-            { _obj = o
-              Id = o?id
-              Row = Table.getRow o
-              Column = (Table.getColumn o).Value }
-            
-        static member internal getColumn (o: obj, ?parent : Column<'T>) : Column<'T> option =
-            if o = null then None
-            // prevent a stack overflow from parsing columns
-            // that then reference back to the same column
-            else
-                let parent = 
-                    match parent with
-                    | Some p -> p |> Some
-                    | None -> (Table.getColumn (o?parent))
-                
-                let temp = 
-                    { _obj = o
-                      Id = o?id
-                      Depth = o?depth
-                      ColumnDef = Table.getColumnDef o?columnDef
-                      Columns = [||]
-                      Parent = parent }
-                    
-                let columns =
-                    o?columns
-                    |> Array.map (fun c -> Table.getColumn(c, temp))
-                    |> Array.choose id
-                    
-                { temp with Columns = columns } |> Some
-                
-        static member convertToRows (o : seq<_>) =
-            if o = null then [||]
-            else [| for r in o do
-                    { _obj = r
-                      Id = r?id
-                      Depth = r?depth
-                      Index = r?index
-                      Original = r?original
-                      SubRows = Table.convertToRows r?subRows } |]
-            
-        static member private getRow (o : obj) : Row<'T> =
-            { _obj = o
-              Id = o?id
-              Depth = o?depth
-              Index = o?index
-              Original = o?original
-              SubRows = Table.convertToRows o?subRows }
+            table
         
-        static member private convertCells (dynamicCells : obj[]) : Cell<'T>[] =
-            let cells =
-                dynamicCells
-                |> Array.map (fun c -> {
-                    _obj = c
-                    Id = c?id
-                    Row = Table.getRow c?row
-                    Column = (Table.getColumn c?column).Value
-                })
-            cells
+        static member getContext (header : Header<'T>) : Context<'T> =
+            header?getContext()
+            
+        static member getContext (cell : Cell<'T>) : Context<'T> =
+            cell?getContext()
             
         static member getVisibleCells (row : Row<'T>) : Cell<'T>[] =
-            Table.convertCells (row._obj?getVisibleCells())
+            row?getVisibleCells()
             
         static member getLeftVisibleCells (row : Row<'T>) : Cell<'T>[] =
-            Table.convertCells (row._obj?getLeftVisibleCells())
+            row?getLeftVisibleCells()
         
         static member getCenterVisibleCells (row : Row<'T>) : Cell<'T>[] =
-            Table.convertCells (row._obj?getCenterVisibleCells())
+            row?getCenterVisibleCells()
             
         static member getRightVisibleCells (row : Row<'T>) : Cell<'T>[] =
-            Table.convertCells (row._obj?getRightVisibleCells())
-            
-        static member internal convertHeaders (o : seq<_>) : Header<'T>[] =
-            let rec convertToHeader (o : seq<_>) : Header<'T>[] = [|
-                for h in o do
-                    { _obj = h
-                      Id = h?id
-                      Index = h?index
-                      Depth = h?depth
-                      Column = (Table.getColumn h?column).Value
-                      ColSpan = h?colSpan
-                      RowSpan = h?rowSpan
-                      IsPlaceholder = h?isPlaceholder
-                      PlaceholderId = h?placeholderId
-                      SubHeaders = convertToHeader h?subHeaders }
-            |]
-            convertToHeader o
-            
-        static member private convertHeaderFooterGroups (groups : obj[]) : HeaderGroup<'T>[] =
-            groups |> Array.map(fun g ->
-                { _obj = g
-                  Id = g?id
-                  Depth = g?depth
-                  Headers = Table.convertHeaders (g?headers) })
+            row?getRightVisibleCells()
             
         static member getHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getHeaderGroups())
+            table?_obj?getHeaderGroups()
             
         static member getLeftHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getLeftHeaderGroups())
+            table?_obj?getLeftHeaderGroups()
         
         static member getCenterHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getCenterHeaderGroups())
+            table?_obj?getCenterHeaderGroups()
             
         static member getRightHeaderGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getRightHeaderGroups())
+            table?_obj?getRightHeaderGroups()
             
         static member getFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getFooterGroups())
+            table?_obj?getFooterGroups()
             
         static member getLeftFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getLeftFooterGroups())
+            table?_obj?getLeftFooterGroups()
         
         static member getCenterFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getCenterFooterGroups())
+            table?_obj?getCenterFooterGroups()
             
         static member getRightFooterGroups (table : Table<'T>) : HeaderGroup<'T>[] =
-            Table.convertHeaderFooterGroups (table._obj?getRightFooterGroups())
+            table?_obj?getRightFooterGroups()
             
         static member getAllLeafColumns (table : Table<'T>) : Column<'T>[] =
-            table._obj?getAllLeafColumns() |> Array.choose Table.getColumn
-            
-        static member private objToRowModel (o : obj) : RowModel<'T> =
-            let rows = Table.convertToRows o?rows
-            let flatRows = Table.convertToRows o?flatRows
-            { _obj = o 
-              Rows = rows
-              FlatRows = flatRows }
+            table?_obj?getAllLeafColumns()
             
         static member getRowModel (table : Table<'T>) : RowModel<'T> =
-            Table.objToRowModel (table._obj?getRowModel())
+            table?_obj?getRowModel()
             
         static member getPreFilteredRowModel (table : Table<'T>) : RowModel<'T> =
-            Table.objToRowModel (table._obj?getPreFilteredRowModel())
+            table?_obj?getPreFilteredRowModel()
             
         static member getCenterTotalSize (table : Table<'T>) : int =
-            table._obj?getCenterTotalSize()
+            table?_obj?getCenterTotalSize()
             
     type Html =
-        static member flexRender<'T> (comp : obj, context : Context<'T>) =
+        static member flexRender<'T> (comp : obj, context : Context<'T>) : ReactElement =
             innerFlexRender(comp, context)
         
-        static member flexRender<'T> (isPlaceholder : bool, comp : obj, context : Context<'T>) =
+        static member flexRender<'T> (isPlaceholder : bool, comp : obj, context : Context<'T>) : ReactElement =
             if isPlaceholder then Html.none
             else innerFlexRender(comp, context)
+            
+        static member flexRender<'T, 'TState, 'Msg> (state : 'TState, dispatch : 'Msg -> unit, comp : obj, context : Context<'T>) : ReactElement =
+            if isJsFunc comp then 
+                let obj = createObj [
+                    "state" ==> state
+                    "dispatch" ==> dispatch
+                ]
+                
+                let props = merge context obj
+                (unbox comp)(props)
+            else innerFlexRender(comp, context)
+            

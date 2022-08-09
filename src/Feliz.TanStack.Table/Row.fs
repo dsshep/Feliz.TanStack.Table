@@ -7,10 +7,10 @@ open Feliz.TanStack.Table.Types
 module Row = 
     type Row = 
         static member getValue (column : Column<'T>) (row : Row<'T>) : obj =
-            row._obj?getValue(column.Id)
+            row?getValue(column.id)
             
         static member getCanExpand (row : Row<'T>) : bool =
-            row._obj?getCanExpand()
+            row?getCanExpand()
             
         static member getIsExpanded (row: Row<'T>) : bool =
-            row._obj?getIsExpanded()
+            row?getIsExpanded()

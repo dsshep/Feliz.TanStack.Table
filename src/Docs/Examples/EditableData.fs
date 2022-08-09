@@ -8,15 +8,8 @@ open Fable.Core.JsInterop
 open Feliz
 open Feliz.UseElmish
 open Feliz.TanStack.Table
-
-type Person = {
-  Firstname: string
-  Lastname: string
-  Age: int
-  Visits: int
-  Status: string
-  Progress: int
-}
+open MakeData
+open MakeData.Types
 
 [<Emit("typeof $0 === 'number'")>]
 let private isNumber x = jsNative
@@ -188,7 +181,7 @@ let update (msg: Msg) (state: State) =
 let view (state: State) (dispatch: Msg -> unit) =
     let filter (column : Column<Person>) (table : Table<Person>) =
         let firstValue =
-            (Table.getPreFilteredRowModel table).FlatRows
+            (Table.getPreFilteredRowModel table).flatRows
             |> Array.head
             |> Row.getValue column
         
@@ -283,20 +276,20 @@ let view (state: State) (dispatch: Msg -> unit) =
             Html.thead [
                 for headerGroup in Table.getHeaderGroups state.Table do
                      Html.tr [
-                         prop.key headerGroup.Id
+                         prop.key headerGroup.id
                          prop.children [
-                             for header in headerGroup.Headers do
+                             for header in headerGroup.headers do
                                  Html.th [
-                                     prop.key header.Id
-                                     prop.colSpan header.ColSpan
+                                     prop.key header.id
+                                     prop.colSpan header.colSpan
                                      prop.children [
-                                         if header.IsPlaceholder then Html.none else
+                                         if header.isPlaceholder then Html.none else
                                          Html.flexRender (
-                                             header.IsPlaceholder,
-                                             header.Column.ColumnDef.Header,
+                                             header.isPlaceholder,
+                                             header.column.columnDef.header,
                                              Table.getContext header)
-                                         if Column.getCanFilter header.Column then 
-                                            filter header.Column state.Table
+                                         if Column.getCanFilter header.column then 
+                                            filter header.column state.Table
                                          else Html.none
                                      ]
                                  ]
@@ -306,17 +299,17 @@ let view (state: State) (dispatch: Msg -> unit) =
             
         let tbody =
             Html.tbody [
-                for row in (Table.getRowModel state.Table).Rows do
+                for row in (Table.getRowModel state.Table).rows do
                     Html.tr [
-                        prop.key row.Id
+                        prop.key row.id
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
-                                    prop.onClick (fun _ -> CellClicked (cell.Row.Index, cell.Column.Id) |> dispatch)
+                                    prop.onClick (fun _ -> CellClicked (cell.row.index, cell.column.id) |> dispatch)
                                     prop.children [
                                         match state.EditingData with
-                                        | Some editingData when cell.Column.Id = editingData.ColumnId
-                                                                && cell.Row.Index = editingData.RowIndex ->
+                                        | Some editingData when cell.column.id = editingData.ColumnId
+                                                                && cell.row.index = editingData.RowIndex ->
                                             Html.input [
                                                 prop.onChange (fun t ->
                                                     PropertyChanged { EditingData = editingData
@@ -327,7 +320,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                                             ]
                                         | _ ->
                                             Html.flexRender(
-                                                cell.Column.ColumnDef.Cell,
+                                                cell.column.columnDef.cell,
                                                 Table.getContext cell)
                                     ]
                                 ]

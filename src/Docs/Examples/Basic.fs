@@ -74,7 +74,6 @@ let columnDef =
 
 type State = {
     Table : Table<Person>
-    HideColumn: bool
 }
 
 type Msg =
@@ -86,7 +85,7 @@ let init () =
         tableProps.columns columnDef ]
     
     let table = Table.init<Person> tableProps
-    { Table = table; HideColumn = false }, Cmd.none
+    { Table = table }, Cmd.none
 
 let update (msg: Msg) (state: State) =
     state, Cmd.none
@@ -97,14 +96,14 @@ let view (state: State) (dispatch: Msg -> unit) =
             Html.thead [
                 for headerGroup in Table.getHeaderGroups state.Table do
                      Html.tr [
-                         prop.key headerGroup.Id
+                         prop.key headerGroup.id
                          prop.children [
-                             for header in headerGroup.Headers do
+                             for header in headerGroup.headers do
                                  Html.th [
-                                     prop.key header.Id
+                                     prop.key header.id
                                      prop.children [
                                          Html.flexRender (
-                                             header.Column.ColumnDef.Header,
+                                             header.column.columnDef.header,
                                              Table.getContext header)
                                      ]
                                  ]
@@ -114,14 +113,14 @@ let view (state: State) (dispatch: Msg -> unit) =
             
         let tbody =
             Html.tbody [
-                for row in (Table.getRowModel state.Table).Rows do
+                for row in (Table.getRowModel state.Table).rows do
                     Html.tr [
-                        prop.key row.Id
+                        prop.key row.id
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
                                     Html.flexRender(
-                                        cell.Column.ColumnDef.Cell,
+                                        cell.column.columnDef.cell,
                                         Table.getContext cell)
                                 ]
                         ]
@@ -132,14 +131,14 @@ let view (state: State) (dispatch: Msg -> unit) =
             Html.tfoot [
                 for footerGroup in Table.getFooterGroups state.Table do
                     Html.tr [
-                        prop.key footerGroup.Id
+                        prop.key footerGroup.id
                         prop.children [
-                            for footer in footerGroup.Headers do
+                            for footer in footerGroup.headers do
                                 Html.th [
-                                    prop.key footer.Id
+                                    prop.key footer.id
                                     prop.children [
                                         Html.flexRender(
-                                            footer.Column.ColumnDef.Footer,
+                                            footer.column.columnDef.footer,
                                             Table.getContext footer)
                                     ]
                                 ]

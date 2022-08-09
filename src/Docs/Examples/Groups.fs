@@ -236,16 +236,16 @@ let view (state: State) (dispatch: Msg -> unit) =
             Html.thead [
                 for headerGroup in Table.getHeaderGroups state.Table do
                      Html.tr [
-                         prop.key headerGroup.Id
+                         prop.key headerGroup.id
                          prop.children [
-                             for header in headerGroup.Headers do
+                             for header in headerGroup.headers do
                                  Html.th [
-                                     prop.key header.Id
-                                     prop.colSpan header.ColSpan
+                                     prop.key header.id
+                                     prop.colSpan header.colSpan
                                      prop.children [
                                          Html.flexRender (
-                                             header.IsPlaceholder,
-                                             header.Column.ColumnDef.Header,
+                                             header.isPlaceholder,
+                                             header.column.columnDef.header,
                                              Table.getContext header)
                                      ]
                                  ]
@@ -255,14 +255,14 @@ let view (state: State) (dispatch: Msg -> unit) =
             
         let tbody =
             Html.tbody [
-                for row in (Table.getRowModel state.Table).Rows do
+                for row in (Table.getRowModel state.Table).rows do
                     Html.tr [
-                        prop.key row.Id
+                        prop.key row.id
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
                                     Html.flexRender(
-                                        cell.Column.ColumnDef.Cell,
+                                        cell.column.columnDef.cell,
                                         Table.getContext cell)
                                 ]
                         ]
@@ -273,16 +273,16 @@ let view (state: State) (dispatch: Msg -> unit) =
             Html.tfoot [
                 for footerGroup in Table.getFooterGroups state.Table do
                     Html.tr [
-                        prop.key footerGroup.Id
+                        prop.key footerGroup.id
                         prop.children [
-                            for footer in footerGroup.Headers do
+                            for footer in footerGroup.headers do
                                 Html.th [
-                                    prop.key footer.Id
-                                    prop.colSpan footer.ColSpan
+                                    prop.key footer.id
+                                    prop.colSpan footer.colSpan
                                     prop.children [
                                         Html.flexRender(
-                                            footer.IsPlaceholder,
-                                            footer.Column.ColumnDef.Footer,
+                                            footer.isPlaceholder,
+                                            footer.column.columnDef.footer,
                                             Table.getContext footer)
                                     ]
                                 ]
