@@ -3,7 +3,6 @@ namespace Feliz.TanStack.Table
 open Fable.Core.JsInterop
 open Fable.Core
 open Browser.Types
-open Feliz.TanStack.Table.Core
 
 [<AutoOpen>]
 module Sizing =

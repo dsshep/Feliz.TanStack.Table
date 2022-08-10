@@ -44,7 +44,7 @@
     "dependencies": {
         "@faker-js/faker": "^7.3.0",
         "@fortawesome/fontawesome-free": "^5.15.4",
-        "@tanstack/react-table": "^8.3.3",
+        "@tanstack/table-core": "^8.5.11",
         "react": "^17.0.2"
     }
 }

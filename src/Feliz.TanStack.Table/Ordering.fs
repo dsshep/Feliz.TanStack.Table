@@ -1,7 +1,6 @@
 namespace Feliz.TanStack.Table
 
 open Fable.Core.JsInterop
-open Core
 
 [<AutoOpen>]
 module Ordering =

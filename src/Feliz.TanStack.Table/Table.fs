@@ -1,18 +1,15 @@
 namespace Feliz.TanStack.Table
 
-open System.Collections.Generic
 open Feliz
 open Fable.Core
 open Fable.Core.JsInterop
 open Feliz.TanStack.Table
-open Core
 
 [<AutoOpen>]
 module rec Table =
     [<Import("createTable", from="@tanstack/table-core")>]
-    let private createTable (options) = jsNative    
-    //[<Import("flexRender", from="@tanstack/react-table")>]
-    //let private innerFlexRender<'T>(comp: obj, context: Context<'T>) = jsNative
+    let private createTable (options) = jsNative
+    
     [<Emit("{ ...$0, ...$1, state: { ...$2 }, onStateChange: $3 }")>]
     let private spreadInitialOptions prev options state onStateChange = jsNative
     
@@ -21,78 +18,9 @@ module rec Table =
     
     [<Emit("{ ...$0, onStateChange: $1 }")>]
     let private spreadSecondaryOptions prev onStateChange = jsNative
-    [<Emit("(typeof $0 === 'function')")>]
-    let private isJsFunc o = jsNative
     
     [<Emit("{ _obj: $0 }")>]
     let private wrapObj o = jsNative
-    
-    let private getCoreRowModel: unit -> obj = import "getCoreRowModel" "@tanstack/table-core"
-    let private getFilteredRowModel : unit -> obj = import "getFilteredRowModel" "@tanstack/table-core"
-    let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/table-core"
-    let private getExpandedRowModel : unit -> obj = import "getExpandedRowModel" "@tanstack/table-core"
-    
-    let rec internal nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
-        columnDefs
-        |> Seq.map (fun colDef ->
-            createObj [
-                for option in colDef do
-                    match option with
-                    | Id s -> "id" ==> s
-                    | AccessorKey s -> "accessorKey" ==> s
-                    | AccessorFn f -> "accessorFn" ==> f
-                    | HeaderStr s -> "header" ==> s
-                    | FooterStr s -> "footer" ==> s
-                    | HeaderFn f -> "header" ==> f
-                    | FooterFn f -> "footer" ==> f
-                    | Cell f -> "cell" ==> f
-                    | Columns def -> "columns" ==> (nativeColumnDefs def)
-            ])
-        |> Seq.toArray
-
-    type TableStateProps<'T> =
-        static member inline columnVisibility (visibilityState: Dictionary<string, bool>) =
-            prop.custom("columnVisibility", visibilityState)
-        static member inline columnOrder (columnOrderState: string[]) =
-            prop.custom("columnOrder", columnOrderState)
-        static member inline init (props: IReactProperty list) =
-            (createObj !!props) :?> 'T
-    
-    type tableProps =
-        static member inline data<'T> (data: 'T[]) =
-            prop.custom ("data", data)
-        static member columns<'T> (columns: ColumnDefOptionProp<'T> list list) =
-            prop.custom ("columns", (nativeColumnDefs columns))
-        static member getSubRows<'T, 'T2> (fn : 'T -> 'T2) =
-            prop.custom ("getSubRows", fn)
-        static member inline onColumnVisibilityChange (fn: Dictionary<string, bool> -> Dictionary<string, bool>) =
-            prop.custom ("onColumnVisibilityChange", fn)
-        static member inline onColumnOrderChange (fn: string[] -> string[]) =
-            prop.custom ("onColumnOrderChange", fn)
-        static member inline onColumnOrderChange (fn: string[] -> unit) =
-            prop.custom ("onColumnOrderChange", fn)
-        static member inline columnOrder (order: string[]) =
-            prop.custom ("columnOrder", order)
-        static member inline columnResizeMode (resizeMode : ColumnResizeMode) =
-            prop.custom ("columnResizeMode", (ColumnResizeMode.toString resizeMode))
-        static member inline enableColumnResizing (enable : bool) =
-            prop.custom ("enableColumnResizing", enable)
-        static member inline autoResetPageIndex (autoReset : bool) =
-            prop.custom ("autoResetPageIndex", autoReset)
-            
-        // Row Models
-        static member filteredRowModel() =
-            prop.custom ("getFilteredRowModel", getFilteredRowModel())
-        static member paginationRowModel() =
-            prop.custom ("getPaginationRowModel", getPaginationRowModel())
-        static member expandedRowModel() =
-            prop.custom ("getExpandedRowModel", getExpandedRowModel())
-            
-        // debug
-        static member debugAll() =
-            prop.custom("debugAll", true)
-        static member debugTable() =
-            prop.custom ("debugTable", true)
     
     type Table =
         static member internal onStateChange (table : Table<'T>) : 'T2 -> 'T3 =

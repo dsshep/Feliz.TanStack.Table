@@ -60,6 +60,7 @@ let firstNameHeader (props : HeaderProps<_,_,_>) =
                 prop.onChange (fun (_ : Event) -> SelectClicked Select.All |> props.dispatch)
             ]
             Html.button [
+                prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost; ]
                 prop.text (if Table.getIsAllRowsExpanded props.table then "👇" else "👉")
                 prop.onClick (fun _ -> ExpandClicked Expand.All |> props.dispatch)
             ]
@@ -68,8 +69,8 @@ let firstNameHeader (props : HeaderProps<_,_,_>) =
     ]
     
 let firstNameCell (props : CellContextProp<_,_,_>) =
-    Html.div [
-        prop.style [ style.paddingLeft (length.rem (props.row.depth * 2)) ]
+    Html.span [
+        prop.style [ style.paddingLeft (length.rem ((float props.row.depth) * 0.5)) ]
         prop.children [
             Html.input [
                 prop.type' "checkbox"

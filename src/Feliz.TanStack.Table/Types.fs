@@ -72,7 +72,7 @@ module rec Types =
                 let table = wrapTable props?table
                 props?table <- table
                 fn props)
-        
+            
         static member columns columnDef = Columns columnDef
 
     type CellContextProp<'T, 'State, 'Msg> =
@@ -103,10 +103,6 @@ module rec Types =
         abstract member getFooterGroups: unit -> HeaderGroup<'T> list
         abstract member getFlatHeaders: unit -> Header<'T> list
         abstract member getLeafHeaders: unit -> Header<'T> list
-        
-    type PaginationState =
-        abstract member pageIndex: int
-        abstract member pageSize: int
         
     [<Erase>]
     type StringOrFunc =
@@ -162,6 +158,52 @@ module rec Types =
     type Table<'T> = 
         abstract member Data: 'T []
     
+    type Record<'T> =
+        abstract member Item: string -> 'T with get
+    
+    type VisibilityState =
+        inherit Record<bool>
+    
+    type PaginationState =
+        abstract member pageIndex: int
+        abstract member pageSize: int
+    
+    type ColumnPinningState =
+        abstract member left: string[]
+        abstract member right: string[]
+        
+    type ColumnFilter =
+        abstract member id: string
+        abstract member value: obj
+    
+    type ColumnSort =
+        abstract member id: string
+        abstract member desc: bool
+    
+    [<Erase>]
+    type ExpandedState =
+        | Bool of bool
+        | State of Record<bool>
+    
+    type ColumnSizingInfoState =
+        abstract member startOffset: int option
+        abstract member startSize: int option
+        abstract member deltaOffset: int option
+        abstract member isResizingColumn: U2<bool, string>
+        abstract member columnSizingStart: (string * int)[]
+    
     type TableState<'T> =
+        abstract member columnVisibility: VisibilityState
+        abstract member columnOrder: string[]
+        abstract member columnPinning: ColumnPinningState
+        abstract member columnFilters: ColumnFilter[]
+        abstract member globalFilter: obj
+        abstract member sorting: ColumnSort[]
+        abstract member expanded: ExpandedState
+        abstract member grouping: string[]
+        abstract member columnSizing: Record<int>
+        abstract member columnSizingInfo: ColumnSizingInfoState
         abstract member pagination: PaginationState
+        abstract member rowSelection: Record<bool>
+        
         
