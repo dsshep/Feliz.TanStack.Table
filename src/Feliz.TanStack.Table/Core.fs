@@ -9,7 +9,7 @@ module internal Core =
     let internal merge a b = jsNative
     
     [<Emit("{ ...$0, onStateChange: $1 }")>]
-    let internal setStateChange2 x stateChange = jsNative
+    let internal setStateChange x stateChange = jsNative
     
     [<Emit("$0 == null")>]
     let internal nullOrUndefined x : bool = jsNative

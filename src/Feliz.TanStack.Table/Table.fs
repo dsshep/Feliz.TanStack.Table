@@ -11,13 +11,13 @@ open Core
 module rec Table =
     [<Import("createTable", from="@tanstack/table-core")>]
     let private createTable (options) = jsNative    
-    [<Import("flexRender", from="@tanstack/react-table")>]
-    let private innerFlexRender<'T>(comp: obj, context: Context<'T>) = jsNative
+    //[<Import("flexRender", from="@tanstack/react-table")>]
+    //let private innerFlexRender<'T>(comp: obj, context: Context<'T>) = jsNative
     [<Emit("{ ...$0, ...$1, state: { ...$2 }, onStateChange: $3 }")>]
     let private spreadInitialOptions prev options state onStateChange = jsNative
     
     [<Emit("{ ...$0, ...$1, onStateChange: $2 }")>]
-    let internal setStateChange prev options stateChange = jsNative
+    let internal setInitialState prev options stateChange = jsNative
     
     [<Emit("{ ...$0, onStateChange: $1 }")>]
     let private spreadSecondaryOptions prev onStateChange = jsNative
@@ -104,11 +104,11 @@ module rec Table =
                     
                     table?_obj?setOptions(fun prev ->
                         prev?state <- updatedState
-                        let options = setStateChange prev table?_obj?options next
+                        let options = setInitialState prev table?_obj?options next
                         options)
                 else
                     JS.debugger()
-                    setStateChange2 (createObj []) next
+                    setStateChange (createObj []) next
             
         static member init<'T> (options: IReactProperty list) : Table<'T> =
             let coreProps : IReactProperty list = [
@@ -206,11 +206,12 @@ module rec Table =
             
     type Html =
         static member flexRender<'T> (comp : obj, context : Context<'T>) : ReactElement =
-            innerFlexRender(comp, context)
+            if isJsFunc comp then (unbox comp) context
+            else !!comp
         
         static member flexRender<'T> (isPlaceholder : bool, comp : obj, context : Context<'T>) : ReactElement =
             if isPlaceholder then Html.none
-            else innerFlexRender(comp, context)
+            else Html.flexRender<'T> (comp, context)
             
         static member flexRender<'T, 'TState, 'Msg> (state : 'TState, dispatch : 'Msg -> unit, comp : obj, context : Context<'T>) : ReactElement =
             if isJsFunc comp then 
@@ -221,5 +222,5 @@ module rec Table =
                 
                 let props = merge context obj
                 (unbox comp)(props)
-            else innerFlexRender(comp, context)
+            else !!comp
             

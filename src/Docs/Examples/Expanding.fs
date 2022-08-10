@@ -60,7 +60,6 @@ let firstNameHeader (props : HeaderProps<_,_,_>) =
                 prop.onChange (fun (_ : Event) -> SelectClicked Select.All |> props.dispatch)
             ]
             Html.button [
-                prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost ]
                 prop.text (if Table.getIsAllRowsExpanded props.table then "👇" else "👉")
                 prop.onClick (fun _ -> ExpandClicked Expand.All |> props.dispatch)
             ]
@@ -337,7 +336,6 @@ let view (state: State) (dispatch: Msg -> unit) =
             prop.className [ Bulma.P2 ]
             prop.children [
                 Html.table [
-                    prop.style [ style.width (Table.getCenterTotalSize state.Table) ]
                     prop.children [
                         thead
                         tbody

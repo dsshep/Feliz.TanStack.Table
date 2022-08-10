@@ -51,7 +51,7 @@ module Sizing =
                 if applyChange then
                     merge prev?state?columnSizing (createObj newColumnSizing)
                 else prev?state?columnSizing
-            setStateChange prev table?_obj?options (Table.onStateChange table) )
+            setInitialState prev table?_obj?options (Table.onStateChange table) )
         table
     
     type Column =
@@ -65,7 +65,7 @@ module Sizing =
         static member setColumnSizingMode (sizingMode : ColumnResizeMode) (table : Table<'T>) : Table<'T> =
             table?_obj?setOptions(fun prev ->
                 prev?columnResizeMode <- (ColumnResizeMode.toString sizingMode)
-                setStateChange prev table?_obj?options (Table.onStateChange table))
+                setInitialState prev table?_obj?options (Table.onStateChange table))
             table
            
     type Header =
@@ -80,7 +80,7 @@ module Sizing =
                 let options = createObj []
                 
                 prev?state?columnSizingInfo <- options
-                setStateChange prev table?_obj?options (Table.onStateChange table))
+                setInitialState prev table?_obj?options (Table.onStateChange table))
             
             table
         
@@ -115,7 +115,10 @@ module Sizing =
                 ]
                 
                 prev?state?columnSizingInfo <- options
-                setStateChange prev table?_obj?options (Table.onStateChange table))
+                
+                let options = table?_obj?options
+                let onTableStateChange = Table.onStateChange table
+                setInitialState prev options onTableStateChange)
             
             fun event ->
                 if event.cancelable then
