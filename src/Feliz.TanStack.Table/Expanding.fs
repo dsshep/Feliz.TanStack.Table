@@ -11,11 +11,19 @@ module Expanding =
         static member getIsAllRowsExpanded (table : Table<'T>) : bool =
             table?_obj?getIsAllRowsExpanded()
     
-        static member getIsAllRowsSelected (table : Table<'T>) : bool =
-            table?_obj?getIsAllRowsSelected()
+        static member toggleAllRowsExpanded (table : Table<'T>) : Table<'T> =
+            table?_obj?toggleAllRowsExpanded()
+            table
+    
+    type Row =
+        static member getCanExpand (row : Row<'T>) : bool =
+            row?getCanExpand()
             
-        static member getIsSomeRowsSelected (table : Table<'T>) : bool =
-            table?_obj?getIsSomeRowsSelected()
+        static member getIsExpanded (row : Row<'T>) : bool =
+            row?getIsExpanded()
             
-        static member getToggleAllRowsSelectedHandler (table : Table<'T>) =
-            table?_obj?getToggleAllRowsSelectedHandler()
+        static member toggleExpanded(row : Row<'T>) : Table<'T> =
+            if Row.getCanExpand row then
+                row?toggleExpanded()
+            row?_objTable
+            

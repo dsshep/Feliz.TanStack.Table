@@ -7,7 +7,10 @@ open Feliz
 [<AutoOpen>]
 module rec Types =  
         
-    type HeaderFnProps<'T, 'State, 'Msg> =
+    [<Emit("{ ...$0, _obj: $0, Data: $0.options.data }")>]
+    let private wrapTable table = jsNative
+    
+    type HeaderProps<'T, 'State, 'Msg> =
         abstract member table: Table<'T>
         abstract member header: Header<'T>
         abstract member column: Column<'T>
@@ -56,16 +59,19 @@ module rec Types =
         static member accessorKey s = AccessorKey s
         static member accessorFn fn = AccessorFn fn
         static member header s = HeaderStr s
-        static member header<'T1, 'T2, 'State, 'Msg> (fn: HeaderFnProps<'T1, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T1> =
+        static member header<'T1, 'T2, 'State, 'Msg> (fn: HeaderProps<'T1, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T1> =
             (HeaderFn (fun props ->
-                props?table?_obj <- props?table
-                fn props)) 
+                let table = wrapTable props?table
+                props?table <- table
+                fn props))
+            
         static member footer s = FooterStr s
-        static member footer<'T1, 'T2, 'TState, 'Msg> (fn: HeaderFnProps<'T1, 'TState, 'Msg> -> 'T2) = (FooterFn fn) : ColumnDefOptionProp<'T1>
+        static member footer<'T1, 'T2, 'TState, 'Msg> (fn: HeaderProps<'T1, 'TState, 'Msg> -> 'T2) = (FooterFn fn) : ColumnDefOptionProp<'T1>
         static member cell<'T, 'State, 'Msg> (fn: CellContextProp<'T, 'State, 'Msg> -> ReactElement) : ColumnDefOptionProp<'T> =
             Cell (fun props ->
-                props?table?_obj <- props?table
-                fn props) 
+                let table = wrapTable props?table
+                props?table <- table
+                fn props)
         
         static member columns columnDef = Columns columnDef
 

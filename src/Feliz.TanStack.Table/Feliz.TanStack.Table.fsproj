@@ -24,6 +24,7 @@
         <Compile Include="Pagination.fs" />
         <Compile Include="Header.fs" />
         <Compile Include="Expanding.fs" />
+        <Compile Include="Selection.fs" />
         <Compile Include="Column.fs" />
         <Compile Include="Row.fs" />
         <Compile Include="Sizing.fs" />

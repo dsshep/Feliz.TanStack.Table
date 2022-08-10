@@ -14,16 +14,55 @@ open Feliz.TanStack.Table
 [<Emit("typeof $0 === 'number'")>]
 let private isNumber x = jsNative
 
-let firstNameHeader (props : HeaderFnProps<_,_,_>) =
+type FilterChangeType =
+    | Min
+    | Max
+    | Search
+
+type FilterChange = {
+    Column : Column<PersonSub>
+    Type : FilterChangeType
+    Value : string
+}
+
+type PaginateChange =
+    | First
+    | Previous
+    | Next
+    | Last
+    | Index of int
+
+type State = {
+    Table : Table<PersonSub>
+}
+
+type Expand =
+    | All
+    | Row of Row<PersonSub>
+
+type Select =
+    | All
+    | Row of Row<PersonSub>
+
+type Msg =
+    | FilterChanged of FilterChange
+    | Paginate of PaginateChange
+    | PageSizeChange of int
+    | ExpandClicked of Expand
+    | SelectClicked of Select
+
+let firstNameHeader (props : HeaderProps<_,_,_>) =
     Html.span [
         prop.children [
             Html.input [
                 prop.type' "checkbox"
-                Interop.mkAttr "indeterminate" "true"
+                prop.isChecked (Table.getIsAllRowsSelected props.table)
+                prop.onChange (fun (_ : Event) -> SelectClicked Select.All |> props.dispatch)
             ]
             Html.button [
                 prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost ]
                 prop.text (if Table.getIsAllRowsExpanded props.table then "👇" else "👉")
+                prop.onClick (fun _ -> ExpandClicked Expand.All |> props.dispatch)
             ]
             Html.text "First Name"
         ]
@@ -35,10 +74,13 @@ let firstNameCell (props : CellContextProp<_,_,_>) =
         prop.children [
             Html.input [
                 prop.type' "checkbox"
+                prop.isChecked (Row.getIsSelected props.row)
+                prop.onChange (fun (_ : Event) -> SelectClicked (Select.Row props.row) |> props.dispatch)
             ]
             if Row.getCanExpand props.row then
                 Html.button [
                     prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost; ]
+                    prop.onClick (fun _ -> ExpandClicked (Expand.Row props.row) |> props.dispatch)
                     prop.text (if Row.getIsExpanded props.row then "👇" else "👉")
                 ]
             else
@@ -82,46 +124,6 @@ let defaultColumns : ColumnDefOptionProp<PersonSub> list list = [
       ] ]
 ]
 
-type EditingData = {
-    RowIndex : int
-    ColumnId : string
-    Value : string
-}
-
-type PropertyChange = {
-    EditingData : EditingData
-    NewValue : string
-}
-
-type FilterChangeType =
-    | Min
-    | Max
-    | Search
-
-type FilterChange = {
-    Column : Column<Person>
-    Type : FilterChangeType
-    Value : string
-}
-
-type PaginateChange =
-    | First
-    | Previous
-    | Next
-    | Last
-    | Index of int
-
-type State = {
-    Table : Table<Person>
-    EditingData : EditingData option
-}
-
-type Msg =
-    | CellClicked of rowIndex: int * columnId: string
-    | FilterChanged of FilterChange
-    | Paginate of PaginateChange
-    | PageSizeChange of int
-
 let init () =
     let tableProps = [
         tableProps.data (MakeData.subMake 100 [ 10; 10 ])
@@ -132,17 +134,12 @@ let init () =
         tableProps.expandedRowModel()
         tableProps.autoResetPageIndex true ]
     
-    let table = Table.init<Person> tableProps
+    let table = Table.init<PersonSub> tableProps
     
-    { Table = table
-      EditingData = None }, Cmd.none
+    { Table = table }, Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
-    | CellClicked (rowId, columnId) ->
-        { state with
-            EditingData = Some { RowIndex = rowId; ColumnId = columnId; Value = "" } }, Cmd.none
-        
     | FilterChanged change ->
         match change.Type with
         | Search ->
@@ -181,8 +178,23 @@ let update (msg: Msg) (state: State) =
     | PageSizeChange pageSize ->
         { state with Table = Table.setPageSize pageSize state.Table }, Cmd.none
         
+    | ExpandClicked Expand.All->
+        { state with Table = Table.toggleAllRowsExpanded state.Table }, Cmd.none
+        
+    | ExpandClicked (Expand.Row row) ->
+        let table = Row.toggleExpanded row
+        { state with Table = table }, Cmd.none
+    
+    | SelectClicked Select.All ->
+        let table = Table.toggleAllRowsSelected state.Table
+        { state with Table = table }, Cmd.none
+    
+    | SelectClicked (Select.Row row) ->
+        let table = Row.toggleSelected row
+        { state with Table = table }, Cmd.none
+        
 let view (state: State) (dispatch: Msg -> unit) =
-    let filter (column : Column<Person>) (table : Table<Person>) =
+    let filter (column : Column<PersonSub>) (table : Table<PersonSub>) =
         let firstValue =
             (Table.getPreFilteredRowModel table).flatRows
             |> Array.head
@@ -311,14 +323,11 @@ let view (state: State) (dispatch: Msg -> unit) =
                         prop.children [
                             for cell in Table.getVisibleCells row do
                                 Html.td [
-                                    prop.onClick (fun _ -> CellClicked (cell.row.index, cell.column.id) |> dispatch)
-                                    prop.children [
-                                        Html.flexRender(
-                                            state,
-                                            dispatch,
-                                            cell.column.columnDef.cell,
-                                            Table.getContext cell)
-                                    ]
+                                    Html.flexRender(
+                                        state,
+                                        dispatch,
+                                        cell.column.columnDef.cell,
+                                        Table.getContext cell)
                                 ]
                         ]
                     ]
@@ -340,6 +349,10 @@ let view (state: State) (dispatch: Msg -> unit) =
 
     Html.div [
         prop.children [
+            Html.p [
+                prop.className [ Bulma.HasBackgroundWarning; Bulma.P2 ]
+                prop.text "Work in progress..."
+            ]
             table
         ]
     ]
