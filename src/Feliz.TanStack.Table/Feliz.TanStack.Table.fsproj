@@ -16,8 +16,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Types.fs" />
         <Compile Include="BindingHelpers.fs" />
+        <Compile Include="Types.fs" />
         <Compile Include="TableProps.fs" />
         <Compile Include="Table.fs" />
         <Compile Include="Visibility.fs" />

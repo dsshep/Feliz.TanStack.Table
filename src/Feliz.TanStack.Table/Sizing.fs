@@ -6,9 +6,6 @@ open Browser.Types
 
 [<AutoOpen>]
 module Sizing =
-    [<Emit("typeof $0 === 'number'")>]
-    let private isNumberType x = jsNative
-    
     let private calculateColumnSizing (deltaPercentage : float) (old : obj) : (string * obj)[] =
         old?columnSizingStart
         |> Array.map (fun (arr : obj[]) ->
