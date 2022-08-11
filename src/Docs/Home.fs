@@ -42,7 +42,13 @@ let view() =
                                         Html.text ")."
                                     ]
                                     Html.li [
-                                        Html.text "Install the nuget package (coming soon...)"
+                                        Html.a [
+                                            prop.text "Install the nuget package."
+                                            prop.href "https://www.nuget.org/packages/Feliz.TanStack.Table"
+                                        ]
+                                        Html.text " ("
+                                        Html.code "Install-Package Feliz.TanStack.Table"
+                                        Html.text ")."
                                     ]
                                     Html.li [
                                         Html.text "Have a look at the examples, "
