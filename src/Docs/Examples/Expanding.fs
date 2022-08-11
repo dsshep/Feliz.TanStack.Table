@@ -234,7 +234,7 @@ let view (state: State) (dispatch: Msg -> unit) =
     let paginationControls =
         let selectOptions = Map.ofList [
             for i in 10..10..50 do
-                i, ($"Show {i}", fun _ -> PageSizeChange i |> dispatch)
+                string i, ($"Show {i}", fun _ -> PageSizeChange i |> dispatch)
         ]
         
         let pageControl (text : string) isDisabled onClick =
@@ -270,9 +270,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                     prop.className [ Bulma.Select ]
                     prop.children [
                         Html.select [
-                            prop.onChange (fun (event : Event) ->
-                                let option = int event.target?value
-                                snd selectOptions[option]())
+                            prop.onChange (fun (event : Event) -> snd selectOptions[event.target?value]())
                             prop.value $"{(Table.getState state.Table).pagination.pageSize}"
                             prop.children [
                                 for option in selectOptions do
@@ -347,13 +345,7 @@ let view (state: State) (dispatch: Msg -> unit) =
         ]
 
     Html.div [
-        prop.children [
-            Html.p [
-                prop.className [ Bulma.HasBackgroundWarning; Bulma.P2 ]
-                prop.text "Work in progress..."
-            ]
-            table
-        ]
+        table
     ]
     
 [<ReactComponent>]
