@@ -12,7 +12,7 @@
         <PackageTags>fsharp;fable;tanstack;feliz;table</PackageTags>
         <Authors>David Shepherd</Authors>
         <Version>0.0.1</Version>
-        <PackageReleaseNotes>Toast added</PackageReleaseNotes>
+        <PackageReleaseNotes>First release</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>

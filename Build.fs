@@ -13,7 +13,7 @@ initializeContext()
 let publishPath = Path.getFullName "publish"
 let srcPath = Path.getFullName "src"
 let clientSrcPath = srcPath </> "Docs"
-let librarySrcPath = srcPath </> "Feliz.DaisyUI"
+let librarySrcPath = srcPath </> "Feliz.TanStack.Table"
 let appPublishPath = publishPath </> "app"
 
 // Targets
