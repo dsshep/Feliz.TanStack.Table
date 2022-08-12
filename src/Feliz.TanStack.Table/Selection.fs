@@ -25,8 +25,11 @@ module Selection =
         static member getCanSelect (row : Row<'T>) : bool =
             row?getCanSelect()
         
-        static member getIsSelected(row : Row<'T>) : bool =
+        static member getIsSelected (row : Row<'T>) : bool =
             row?getIsSelected()
+        
+        static member getIsSomeSelected (row : Row<'T>) : bool =
+            row?getIsSomeSelected()
         
         static member toggleSelected (row : Row<'T>) : unit =
             if Row.getCanSelect row then 

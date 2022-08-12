@@ -56,6 +56,9 @@ let firstNameHeader (props : HeaderProps<_,_,_>) =
         prop.children [
             Html.input [
                 prop.type' "checkbox"
+                prop.ref (fun e ->
+                    if e = null then () else
+                    e?indeterminate <- Table.getIsSomeRowsSelected props.table)
                 prop.isChecked (Table.getIsAllRowsSelected props.table)
                 prop.onChange (fun (_ : Event) -> SelectClicked Select.All |> props.dispatch)
             ]
@@ -77,6 +80,9 @@ let firstNameCell (props : CellContextProp<_,_,_>) =
             Html.input [
                 prop.type' "checkbox"
                 prop.isChecked (Row.getIsSelected props.row)
+                prop.ref (fun e ->
+                    if e = null then ()
+                    else e?indeterminate <- Row.getIsSomeSelected props.row)
                 prop.onChange (fun (_ : Event) -> SelectClicked (Select.Row props.row) |> props.dispatch)
             ]
             if Row.getCanExpand props.row then
