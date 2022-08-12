@@ -16,26 +16,26 @@
         }
     },
     "devDependencies": {
-        "@vitejs/plugin-react": "^2.0.0",
+        "@vitejs/plugin-react": "^2.0.1",
         "autoprefixer": "^10.4.0",
-        "copy-webpack-plugin": "^9.0.1",
+        "copy-webpack-plugin": "^11.0.0",
         "core-js": "^3.16.1",
         "cross-os": "^1.4.0",
         "css-loader": "^6.2.0",
         "cssnano": "^5.0.10",
-        "dotenv-webpack": "^7.0.3",
+        "dotenv-webpack": "^8.0.0",
         "graceful-fs": "^4.2.8",
         "html-webpack-plugin": "^5.3.2",
         "mini-css-extract-plugin": "^2.2.0",
         "postcss": "^8.3.11",
         "postcss-import": "^14.0.2",
-        "postcss-loader": "^6.2.0",
-        "react-dom": "^17.0.2",
+        "postcss-loader": "^7.0.1",
+        "react-dom": "^18.2.0",
         "remotedev": "^0.2.9",
-        "resolve-url-loader": "^4.0.0",
-        "source-map-loader": "^3.0.0",
+        "resolve-url-loader": "^5.0.0",
+        "source-map-loader": "^4.0.0",
         "style-loader": "^3.2.1",
-        "vite": "^3.0.4",
+        "vite": "^3.0.7",
         "vite-plugin-external": "^1.2.3",
         "webpack": "^5.49.0",
         "webpack-cli": "^4.7.2",
@@ -43,8 +43,8 @@
     },
     "dependencies": {
         "@faker-js/faker": "^7.3.0",
-        "@fortawesome/fontawesome-free": "^5.15.4",
+        "@fortawesome/fontawesome-free": "^6.1.2",
         "@tanstack/table-core": "^8.5.11",
-        "react": "^17.0.2"
+        "react": "^18.2.0"
     }
 }

@@ -69,7 +69,7 @@ let columnDef =
         ColumnHelper.accessor (
           "Progress",
           [ columnDef.header "Profile Progress"
-            columnDef.footer (fun info -> info.column.id)])
+            columnDef.footer (fun info -> info.column.id) ])
     ]
 
 type State = {

@@ -22,8 +22,7 @@ module Expanding =
         static member getIsExpanded (row : Row<'T>) : bool =
             row?getIsExpanded()
             
-        static member toggleExpanded(row : Row<'T>) : Table<'T> =
+        static member toggleExpanded(row : Row<'T>) : unit =
             if Row.getCanExpand row then
                 row?toggleExpanded()
-            row?_objTable
             

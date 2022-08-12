@@ -121,10 +121,7 @@ module rec Table =
             table?_obj?getAllLeafColumns()
             
         static member getRowModel (table : Table<'T>) : RowModel<'T> =
-            let rowModel = table?_obj?getRowModel()
-            rowModel?rows |> Array.iter (fun r -> r?_objTable <- table)
-            rowModel?flatRows |> Array.iter (fun r -> r?_objTable <- table)
-            rowModel
+            table?_obj?getRowModel()
             
         static member getPreFilteredRowModel (table : Table<'T>) : RowModel<'T> =
             table?_obj?getPreFilteredRowModel()

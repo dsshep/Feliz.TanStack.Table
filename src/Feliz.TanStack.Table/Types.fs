@@ -44,7 +44,9 @@ module rec Types =
         | FooterStr of string
         | FooterFn of obj
         | Cell of obj
+        | AggregatedCell of obj
         | Columns of ColumnDefOptionProp<'T> list list
+        | AggregationFn of obj
         
     type ColumnHelper =
         static member accessor (accessor: string, columnDefs: ColumnDefOptionProp<_> list) =
@@ -53,6 +55,33 @@ module rec Types =
             columnDef.accessorFn accessorFn :: columnDefs
         static member createColumnHelper<'T> (columnDefs: ColumnDefOptionProp<'T> list list) =
             columnDefs
+        
+    type Aggregation =
+        | Sum
+        | Min
+        | Max
+        | Extent
+        | Mean
+        | Median
+        | Unique
+        | UniqueCount
+        | Count
+        | Auto
+        with member this.asString() = function
+                | Sum -> "sum"
+                | Min -> "min"
+                | Max -> "max"
+                | Extent -> "extent"
+                | Mean -> "mean"
+                | Median -> "median"
+                | Unique -> "unique"
+                | UniqueCount -> "uniqueCount"
+                | Count -> "count"
+                | Auto -> "auto"
+        
+    type AggregationProps<'T> =
+        abstract member getLeafRows: unit -> Row<'T>[]
+        abstract member getChildRows: unit -> Row<'T>[]
         
     type columnDef =
         static member id s = Id s
@@ -67,8 +96,16 @@ module rec Types =
             
         static member footer s = FooterStr s
         static member footer<'T1, 'T2, 'TState, 'Msg> (fn: HeaderProps<'T1, 'TState, 'Msg> -> 'T2) = (FooterFn fn) : ColumnDefOptionProp<'T1>
-        static member cell<'T, 'State, 'Msg> (fn: CellContextProp<'T, 'State, 'Msg> -> ReactElement) : ColumnDefOptionProp<'T> =
+        static member cell<'T, 'State, 'Msg, 'T2> (fn: CellContextProp<'T, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T> =
             Cell (fun props ->
+                let table = wrapTable props?table
+                props?table <- table
+                fn props)
+            
+        static member inline aggregationFn<'T> (fn : AggregationProps<'T> -> obj) : ColumnDefOptionProp<'T> = AggregationFn fn
+        static member inline aggregationFn<'T> (fn : Aggregation) : ColumnDefOptionProp<'T> = AggregationFn (fn.asString())
+        static member aggregatedCell<'T, 'State, 'Msg, 'T2> (fn: CellContextProp<'T, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T> =
+            AggregatedCell (fun props ->
                 let table = wrapTable props?table
                 props?table <- table
                 fn props)
@@ -120,6 +157,7 @@ module rec Types =
         abstract member header: string
         abstract member footer: string
         abstract member cell: StringOrFunc
+        abstract member aggregatedCell: obj
     
     type Column<'T> =
         abstract member id: string

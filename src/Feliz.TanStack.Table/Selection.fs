@@ -28,9 +28,9 @@ module Selection =
         static member getIsSelected(row : Row<'T>) : bool =
             row?getIsSelected()
         
-        static member toggleSelected (row : Row<'T>) : Table<'T> =
+        static member toggleSelected (row : Row<'T>) : unit =
             if Row.getCanSelect row then 
                 let isSelected = Row.getIsSelected row
                 row?toggleSelected(not isSelected)
-            row?_objTable
+                
             

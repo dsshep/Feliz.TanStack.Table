@@ -9,6 +9,7 @@ module TableProps =
     let private getFilteredRowModel : unit -> obj = import "getFilteredRowModel" "@tanstack/table-core"
     let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/table-core"
     let private getExpandedRowModel : unit -> obj = import "getExpandedRowModel" "@tanstack/table-core"
+    let private getGroupedRowModel : unit -> obj = import "getGroupedRowModel" "@tanstack/table-core"
     
     let rec private nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
         columnDefs
@@ -25,6 +26,8 @@ module TableProps =
                     | FooterFn f -> "footer" ==> f
                     | Cell f -> "cell" ==> f
                     | Columns def -> "columns" ==> (nativeColumnDefs def)
+                    | AggregationFn f -> "aggregationFn" ==> f
+                    | AggregatedCell f -> "aggregatedCell" ==> f 
             ])
         |> Seq.toArray
 
@@ -63,6 +66,8 @@ module TableProps =
             prop.custom ("getPaginationRowModel", getPaginationRowModel())
         static member expandedRowModel() =
             prop.custom ("getExpandedRowModel", getExpandedRowModel())
+        static member groupedRowModel() =
+            prop.custom ("getGroupedRowModel", getGroupedRowModel())
             
         // debug
         static member debugAll() =

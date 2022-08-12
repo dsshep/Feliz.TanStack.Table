@@ -39,6 +39,10 @@ let view() =
                                         ]
                                         Html.text " ("
                                         Html.code "npm i @tanstack/react-table"
+                                        Html.text "/"
+                                        Html.code "yarn install @tanstack/react-table"
+                                        Html.text "/"
+                                        Html.code "Femto"
                                         Html.text ")."
                                     ]
                                     Html.li [
@@ -61,6 +65,20 @@ let view() =
                                 ]
                             ]
                         ]
+                    ]
+                    Html.h2 [
+                        prop.className [ Bulma.Subtitle ]
+                        prop.text "Mutability and Elmish"
+                    ]
+                    Html.p [
+                        Html.text "TanStack.Table relies on internal mutation to maintain the table state. "
+                        Html.text "This means that many of the methods that effect the table state return "
+                        Html.code "unit"
+                        Html.text ", instead of a new"
+                        Html.code "Table<'T>"
+                        Html.text ". To force re-render in Elmish, the state should be reassigned, e.g.: "
+                        Html.code " { state with Table = state.Table }"
+                        Html.text "."
                     ]
                 ]
             ]

@@ -13,6 +13,7 @@ type Page =
     | Resizing
     | EditableData
     | Expanding
+    | Grouping
     
 type Link = {
   Name: string
@@ -36,6 +37,8 @@ let links: Link list = [
     Page = EditableData }
   { Name = "Expanding"
     Page = Expanding }
+  { Name = "Grouping"
+    Page = Grouping }
 ]
 
 [<RequireQualifiedAccess>]
@@ -50,6 +53,7 @@ module Page =
         | [ "resizing" ] -> Page.Resizing
         | [ "editableData" ] -> Page.EditableData
         | [ "expanding" ] -> Page.Expanding
+        | [ "grouping" ] -> Page.Grouping
         | _ -> defaultPage
     
     let noQueryString segments : string list * (string * string) list = segments, []
@@ -65,6 +69,7 @@ module Page =
             | Page.Resizing -> [ "resizing" ]
             | Page.EditableData -> [ "editableData" ]
             | Page.Expanding -> [ "expanding" ]
+            | Page.Grouping -> [ "grouping" ]
         
         pageSegments |> noQueryString
     

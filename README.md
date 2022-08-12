@@ -7,5 +7,5 @@ Check out the documentation at [https://dsshep.github.io/Feliz.TanStack.Table/](
 https://www.nuget.org/packages/Feliz.TanStack.Table
 
 ## Local development
-- `npm i`
-- `npm run start`
+- `yarn install`
+- `yarn start`

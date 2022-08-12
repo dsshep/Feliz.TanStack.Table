@@ -15,6 +15,7 @@
     <Compile Include="Examples\Resizing.fs" />
     <Compile Include="Examples\EditableData.fs" />
     <Compile Include="Examples\Expanding.fs" />
+    <Compile Include="Examples\Grouping.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="Main.fs" />

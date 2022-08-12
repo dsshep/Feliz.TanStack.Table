@@ -38,6 +38,7 @@ let view (state : State) (dispatch : Msg -> unit) =
         | Resizing -> Some $"{baseUrl}Resizing.fs"
         | EditableData -> Some $"{baseUrl}EditableData.fs"
         | Expanding -> Some $"{baseUrl}Expanding.fs"
+        | Grouping -> Some $"{baseUrl}Grouping.fs"
     
     let sourceLink =
         match sourceLinkOpt with
@@ -114,6 +115,7 @@ let view (state : State) (dispatch : Msg -> unit) =
                                     | Page.Resizing -> Examples.Resizing.Component()
                                     | Page.EditableData -> Examples.EditableData.Component()
                                     | Page.Expanding -> Examples.Expanding.Component()
+                                    | Page.Grouping -> Examples.Grouping.Component()
                                 ]
                             ])
                         colDiv sourceLink

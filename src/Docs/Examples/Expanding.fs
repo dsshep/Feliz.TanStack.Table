@@ -182,16 +182,16 @@ let update (msg: Msg) (state: State) =
         { state with Table = Table.toggleAllRowsExpanded state.Table }, Cmd.none
         
     | ExpandClicked (Expand.Row row) ->
-        let table = Row.toggleExpanded row
-        { state with Table = table }, Cmd.none
+        Row.toggleExpanded row
+        { state with Table = state.Table }, Cmd.none
     
     | SelectClicked Select.All ->
         let table = Table.toggleAllRowsSelected state.Table
         { state with Table = table }, Cmd.none
     
     | SelectClicked (Select.Row row) ->
-        let table = Row.toggleSelected row
-        { state with Table = table }, Cmd.none
+        Row.toggleSelected row
+        { state with Table = state.Table }, Cmd.none
         
 let view (state: State) (dispatch: Msg -> unit) =
     let filter (column : Column<PersonSub>) (table : Table<PersonSub>) =

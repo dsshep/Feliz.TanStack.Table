@@ -13,6 +13,8 @@
         <Authors>David Shepherd</Authors>
         <Version>0.0.1</Version>
         <PackageReleaseNotes>First release</PackageReleaseNotes>
+
+        <WarningsAsErrors>FS0025</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,6 +28,7 @@
         <Compile Include="Header.fs" />
         <Compile Include="Expanding.fs" />
         <Compile Include="Selection.fs" />
+        <Compile Include="Grouping.fs" />
         <Compile Include="Column.fs" />
         <Compile Include="Row.fs" />
         <Compile Include="Sizing.fs" />
