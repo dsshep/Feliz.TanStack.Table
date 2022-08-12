@@ -107,9 +107,7 @@ module rec Types =
         static member inline aggregationFn<'T> (fn : AggregationProps<'T> -> obj) : ColumnDefOptionProp<'T> =
             AggregationFn fn
         static member inline aggregationFn<'T> (aggregation : Aggregation) : ColumnDefOptionProp<'T> =
-            let x = AggregationFn (aggregation.asString())
-            Fable.Core.JS.console.log (aggregation.asString())
-            x
+            AggregationFn (aggregation.asString())
         static member aggregatedCell<'T, 'State, 'Msg, 'T2> (fn: CellContextProp<'T, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T> =
             AggregatedCell (fun props ->
                 let table = wrapTable props?table
