@@ -23,6 +23,12 @@ module Pagination =
         static member getPageCount (table : Table<'T>) : int =
             table?_obj?getPageCount() 
 
+        
+        static member setPageCount (count : int) (table : Table<'T>) : Table<'T> =
+            let o = createObj [ "pageCount" ==> count ]
+            Table.setOption o table
+            table
+        
         static member nextPage (table : Table<'T>) : Table<'T> =
             table?_obj?nextPage()
             table

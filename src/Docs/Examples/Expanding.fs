@@ -178,7 +178,7 @@ let update (msg: Msg) (state: State) =
             | Previous -> Table.previousPage state.Table
             | Next -> Table.nextPage state.Table
             | Last -> Table.setPageIndex (Table.getPageCount state.Table - 1) state.Table
-            | Index i -> Table.setPageIndex i state.Table
+            | Index i -> Table.setPageIndex (i - 1) state.Table
             
         { state with Table = table }, Cmd.none
         

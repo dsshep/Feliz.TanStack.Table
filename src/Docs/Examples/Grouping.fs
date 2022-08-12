@@ -64,7 +64,7 @@ type Msg =
     | ExpandClicked of Row<Person>
     
 let init () =
-    let data = MakeData.make 100_000
+    let data = MakeData.make 10_000
     
     let tableProps = [
         tableProps.data data
@@ -92,7 +92,7 @@ let update (msg: Msg) (state: State) =
             | Previous -> Table.previousPage state.Table
             | Next -> Table.nextPage state.Table
             | Last -> Table.setPageIndex (Table.getPageCount state.Table - 1) state.Table
-            | Index i -> Table.setPageIndex i state.Table
+            | Index i -> Table.setPageIndex (i - 1) state.Table
             
         { state with Table = table }, Cmd.none
         

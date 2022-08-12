@@ -30,12 +30,17 @@ module rec Table =
                 let updatedState =
                     if isJsFunc updater then (!!updater)(state)
                     else merge state updater
-                
+                    
                 table?_obj?setOptions(fun prev ->
                     prev?state <- updatedState
                     let options = setInitialState prev table?_obj?options next
                     options)
                 
+        static member internal setOption (o : obj) (table : Table<'T>) =
+            let next = (Table.onStateChange table)
+            table?_obj?setOptions (fun prev ->
+                let options = setInitialState prev o next
+                options)
             
         static member init<'T> (options: IReactProperty list) : Table<'T> =
             let coreProps : IReactProperty list = [

@@ -41,7 +41,7 @@ let columnDef =
             columnDef.footer (fun info -> info.column.id) ])
     ]
 
-let totalPages = 1000
+let totalItems = 1000
 
 type PaginateChange =
     | First
@@ -79,7 +79,6 @@ let query () =
                match data with
                | _, Some p -> p
                | i, None ->
-                   Fable.Core.JS.console.log $"Created person {i}"
                    let person = MakeData.make 1 |> Array.head
                    cache[i] <- person
                    person |]
@@ -90,12 +89,14 @@ let createPaginationState pageIndex pageSize =
             member _.pageSize = pageSize }
     
 let init () =
+    let defaultPageSize = 10
     let query = query()
+    
     let tableProps = [
-        tableProps.data (query(0, 10))
+        tableProps.data (query(0, defaultPageSize))
         tableProps.columns columnDef
         tableProps.manualPagination true
-        tableProps.pageCount totalPages ]
+        tableProps.pageCount (totalItems / defaultPageSize) ]
     
     let table = Table.init<Person> tableProps
     
@@ -108,11 +109,12 @@ let update (msg: Msg) (state: State) =
     | Paginate change ->
         let pageIndex = 
             match change with
-            | First -> 0 
+            | First -> 0
             | Previous -> state.PageState.PageIndex - 1
             | Next -> state.PageState.PageIndex + 1
-            | Last -> totalPages
-            | Index i -> i
+            | Last -> (totalItems / state.PageState.PageSize)
+            | Index i when i > 0 && i <= (totalItems / state.PageState.PageSize) -> i - 1
+            | Index _ -> state.PageState.PageIndex
             
         let table = 
             Table.setPaginationState
@@ -130,7 +132,8 @@ let update (msg: Msg) (state: State) =
                 (createPaginationState state.PageState.PageIndex size)
                 state.Table
             |> Table.setData (state.QueryFn(state.PageState.PageIndex, size))
-                
+            |> Table.setPageCount (totalItems / size)
+
         { state with
             Table = table
             PageState = { state.PageState with PageSize = size } }, Cmd.none
@@ -253,10 +256,6 @@ let view (state: State) (dispatch: Msg -> unit) =
                 "p-2"
             ]
             prop.children [
-                Html.p [
-                    prop.className [ Bulma.P2; Bulma.M2; Bulma.HasBackgroundWarning ]
-                    prop.text "Work in progress..."
-                ]
                 Html.table [
                     prop.children [
                         thead
