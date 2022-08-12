@@ -58,6 +58,9 @@ module TableProps =
             prop.custom ("autoResetPageIndex", autoReset)
         static member inline manualPagination (manual : bool) =
             prop.custom("manualPagination", manual)
+        static member inline pageCount (count : int) =
+            prop.custom("pageCount", count)
+        
             
         // Row Models
         static member filteredRowModel() =

@@ -2,15 +2,6 @@ namespace MakeData
 
 module Types =
     
-    type Person = {
-        Firstname: string
-        Lastname: string
-        Age: int
-        Visits: int
-        Status: string
-        Progress: int
-    }
-
     type PersonSub = {
         Firstname: string
         Lastname: string
@@ -19,6 +10,15 @@ module Types =
         Status: string
         Progress: int
         SubRows: PersonSub[]
+    }
+
+    type Person = {
+        Firstname: string
+        Lastname: string
+        Age: int
+        Visits: int
+        Status: string
+        Progress: int
     }
 
 

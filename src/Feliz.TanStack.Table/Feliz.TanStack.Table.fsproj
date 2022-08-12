@@ -33,6 +33,7 @@
         <Compile Include="Row.fs" />
         <Compile Include="Sizing.fs" />
         <Compile Include="TableState.fs" />
+        <Compile Include="UtilityTypes.fs" />
     </ItemGroup>
 
     <PropertyGroup>

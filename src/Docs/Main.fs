@@ -39,6 +39,7 @@ let view (state : State) (dispatch : Msg -> unit) =
         | EditableData -> Some $"{baseUrl}EditableData.fs"
         | Expanding -> Some $"{baseUrl}Expanding.fs"
         | Grouping -> Some $"{baseUrl}Grouping.fs"
+        | PaginationControlled -> Some $"{baseUrl}PaginationControlled.fs"
     
     let sourceLink =
         match sourceLinkOpt with
@@ -116,6 +117,7 @@ let view (state : State) (dispatch : Msg -> unit) =
                                     | Page.EditableData -> Examples.EditableData.Component()
                                     | Page.Expanding -> Examples.Expanding.Component()
                                     | Page.Grouping -> Examples.Grouping.Component()
+                                    | Page.PaginationControlled -> Examples.PaginationControlled.Component()
                                 ]
                             ])
                         colDiv sourceLink

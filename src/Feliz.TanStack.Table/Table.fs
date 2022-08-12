@@ -20,23 +20,22 @@ module rec Table =
     let private spreadSecondaryOptions prev onStateChange = jsNative
     
     [<Emit("{ _obj: $0 }")>]
-    let private wrapObj o = jsNative
+    let internal wrapObj o = jsNative
     
     type Table =
         static member internal onStateChange (table : Table<'T>) : 'T2 -> 'T3 =
             fun updater ->
                 let next = (Table.onStateChange table)
-                if isJsFunc updater then
-                    let state = table?_obj?getState()
-                    let updatedState = (!!updater)(state)
-                    
-                    table?_obj?setOptions(fun prev ->
-                        prev?state <- updatedState
-                        let options = setInitialState prev table?_obj?options next
-                        options)
-                else
-                    JS.debugger()
-                    setStateChange (createObj []) next
+                let state = table?_obj?getState()
+                let updatedState =
+                    if isJsFunc updater then (!!updater)(state)
+                    else merge state updater
+                
+                table?_obj?setOptions(fun prev ->
+                    prev?state <- updatedState
+                    let options = setInitialState prev table?_obj?options next
+                    options)
+                
             
         static member init<'T> (options: IReactProperty list) : Table<'T> =
             let coreProps : IReactProperty list = [
@@ -67,14 +66,6 @@ module rec Table =
                 options)
             table
             
-        static member setData (table : Table<'T>) (data : 'T[]) : Table<'T> =
-            table?_obj?options?data <- data
-            let table =
-                wrapObj (table?_obj)
-                |> merge (createObj [ "Data" ==> data ])
-            
-            table
-        
         static member getContext (header : Header<'T>) : Context<'T> =
             header?getContext()
             

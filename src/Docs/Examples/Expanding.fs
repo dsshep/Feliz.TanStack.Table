@@ -256,7 +256,7 @@ let view (state: State) (dispatch: Msg -> unit) =
             prop.className [ Bulma.IsInlineBlock ]
             prop.children [
                 pageControl "<<" (Table.hasPreviousPage state.Table |> not) (fun _ -> Paginate First |> dispatch)
-                pageControl "<" (Table.hasPreviousPage state.Table |> not) (fun _ -> Paginate First |> dispatch)
+                pageControl "<" (Table.hasPreviousPage state.Table |> not) (fun _ -> Paginate Previous |> dispatch)
                 pageControl ">" (Table.hasNextPage state.Table |> not) (fun _ -> Paginate Next |> dispatch)
                 pageControl ">>" (Table.hasNextPage state.Table |> not) (fun _ -> Paginate Last |> dispatch)
                 Html.p [
