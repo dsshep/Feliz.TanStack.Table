@@ -11,7 +11,7 @@
         <PackageIconUrl></PackageIconUrl>
         <PackageTags>fsharp;fable;tanstack;feliz;table</PackageTags>
         <Authors>David Shepherd</Authors>
-        <Version>0.0.1</Version>
+        <Version>0.0.11</Version>
         <PackageReleaseNotes>First release</PackageReleaseNotes>
 
         <WarningsAsErrors>FS0025</WarningsAsErrors>
