@@ -76,7 +76,8 @@ let view() =
                         Html.code "unit"
                         Html.text ", instead of a new"
                         Html.code "Table<'T>"
-                        Html.text ". To force re-render in Elmish, the state should be reassigned, e.g.: "
+                        Html.text ". To force re-render in Elmish, the state should be reassigned in the "
+                        Html.text "update function, e.g.: "
                         Html.code " { state with Table = state.Table }"
                         Html.text "."
                     ]

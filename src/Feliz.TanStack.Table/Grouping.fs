@@ -20,10 +20,7 @@ module Grouping =
             
     type Cell =
         static member getIsGrouped (cell : Cell<'T>) : bool =
-            let isGrouped = cell?getIsGrouped()
-            if cell.id.Contains("Firstname") && Column.getIsGrouped cell.column then
-                Fable.Core.JS.console.log ($"column id {cell.column.id}, row: {cell.row?groupingColumnId}")
-            isGrouped
+            cell?getIsGrouped()
             
         static member getIsAggregated (cell : Cell<'T>) : bool =
             cell?getIsAggregated()
