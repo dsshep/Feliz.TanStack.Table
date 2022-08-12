@@ -67,7 +67,8 @@ module rec Types =
         | UniqueCount
         | Count
         | Auto
-        with member this.asString() = function
+        with member this.asString() =
+                match this with
                 | Sum -> "sum"
                 | Min -> "min"
                 | Max -> "max"
@@ -95,15 +96,20 @@ module rec Types =
                 fn props))
             
         static member footer s = FooterStr s
-        static member footer<'T1, 'T2, 'TState, 'Msg> (fn: HeaderProps<'T1, 'TState, 'Msg> -> 'T2) = (FooterFn fn) : ColumnDefOptionProp<'T1>
+        static member footer<'T1, 'T2, 'TState, 'Msg> (fn: HeaderProps<'T1, 'TState, 'Msg> -> 'T2) : ColumnDefOptionProp<'T1> =
+            (FooterFn fn) 
         static member cell<'T, 'State, 'Msg, 'T2> (fn: CellContextProp<'T, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T> =
             Cell (fun props ->
                 let table = wrapTable props?table
                 props?table <- table
                 fn props)
             
-        static member inline aggregationFn<'T> (fn : AggregationProps<'T> -> obj) : ColumnDefOptionProp<'T> = AggregationFn fn
-        static member inline aggregationFn<'T> (fn : Aggregation) : ColumnDefOptionProp<'T> = AggregationFn (fn.asString())
+        static member inline aggregationFn<'T> (fn : AggregationProps<'T> -> obj) : ColumnDefOptionProp<'T> =
+            AggregationFn fn
+        static member inline aggregationFn<'T> (aggregation : Aggregation) : ColumnDefOptionProp<'T> =
+            let x = AggregationFn (aggregation.asString())
+            Fable.Core.JS.console.log (aggregation.asString())
+            x
         static member aggregatedCell<'T, 'State, 'Msg, 'T2> (fn: CellContextProp<'T, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T> =
             AggregatedCell (fun props ->
                 let table = wrapTable props?table

@@ -25,8 +25,6 @@ let defaultColumns : ColumnDefOptionProp<Person> list list = [
           [ columnDef.accessorKey "Age"
             columnDef.header (fun _ -> "Age")
             columnDef.aggregatedCell (fun props ->
-                let x = ((props.getValue<float>() * 100.) / 100.)
-                Fable.Core.JS.debugger()
                 ((props.getValue<float>() * 100.) / 100.) |> round)
             columnDef.aggregationFn Aggregation.Median ]
           [ columnDef.header "More Info"
@@ -66,7 +64,7 @@ type Msg =
     | ExpandClicked of Row<Person>
     
 let init () =
-    let data = MakeData.make 10_000 // |> Array.collect (fun p -> [| p; p; p; p; |])
+    let data = MakeData.make 100_000
     
     let tableProps = [
         tableProps.data data
@@ -76,7 +74,6 @@ let init () =
         tableProps.groupedRowModel()
         tableProps.paginationRowModel() ]
     
-    Fable.Core.JS.debugger()
     let table = Table.init<Person> tableProps
     
     { Table = table }, Cmd.none
@@ -108,7 +105,6 @@ let update (msg: Msg) (state: State) =
         
     
 let view (state: State) (dispatch: Msg -> unit) =
-    Fable.Core.JS.debugger()
     let table = 
         let thead =
             Html.thead [
@@ -126,12 +122,14 @@ let view (state: State) (dispatch: Msg -> unit) =
                                          Html.div [
                                              if Column.getCanGroup header.column then
                                                  Html.button [
-                                                     prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost ]
+                                                     prop.className [ Local.GhostButton ]
                                                      prop.style [ style.cursor.pointer ]
                                                      prop.onClick (fun _ -> (ColumnClicked header.column) |> dispatch)
-                                                     prop.text (if Column.getIsGrouped header.column then
-                                                                    $"🛑{Column.getGroupedIndex header.column}"
-                                                                else "👊")
+                                                     prop.children [
+                                                         Html.text (if Column.getIsGrouped header.column then
+                                                                        $"🛑 {Column.getGroupedIndex header.column}"
+                                                                    else "👊 ")
+                                                     ]
                                                  ]
                                              Html.flexRender (
                                                  header.column.columnDef.header,
@@ -162,7 +160,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                                         if Cell.getIsGrouped cell then
                                             Html.span [
                                                 Html.button [
-                                                    prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost ]
+                                                    prop.className [ Local.GhostButton ]
                                                     prop.onClick (fun _ -> (ExpandClicked row) |> dispatch)
                                                     prop.children [
                                                         Html.flexRender(
@@ -250,10 +248,6 @@ let view (state: State) (dispatch: Msg -> unit) =
                 "p-2"
             ]
             prop.children [
-                Html.p [
-                    prop.className [ Bulma.HasBackgroundWarning; Bulma.Mb2; Bulma.P2 ]
-                    prop.text "Work in progress..."
-                ]
                 Html.table [
                     prop.children [
                         thead

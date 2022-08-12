@@ -60,11 +60,13 @@ let firstNameHeader (props : HeaderProps<_,_,_>) =
                 prop.onChange (fun (_ : Event) -> SelectClicked Select.All |> props.dispatch)
             ]
             Html.button [
-                prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost; ]
-                prop.text (if Table.getIsAllRowsExpanded props.table then "👇" else "👉")
+                prop.className [ Local.GhostButton ]
                 prop.onClick (fun _ -> ExpandClicked Expand.All |> props.dispatch)
+                prop.children [
+                    Html.text (if Table.getIsAllRowsExpanded props.table then "👇" else "👉")
+                    Html.text "First Name"
+                ]
             ]
-            Html.text "First Name"
         ]
     ]
     
@@ -79,13 +81,18 @@ let firstNameCell (props : CellContextProp<_,_,_>) =
             ]
             if Row.getCanExpand props.row then
                 Html.button [
-                    prop.className [ Bulma.Button; Bulma.IsSmall; Bulma.IsGhost; ]
+                    prop.className [ Local.GhostButton ]
                     prop.onClick (fun _ -> ExpandClicked (Expand.Row props.row) |> props.dispatch)
-                    prop.text (if Row.getIsExpanded props.row then "👇" else "👉")
+                    prop.children [
+                        Html.text (if Row.getIsExpanded props.row then "👇" else "👉")
+                        Html.text (props.getValue<string>())
+                    ]
                 ]
             else
-                Html.text "🔵"
-            Html.text (props.getValue<string>())
+                Html.span [
+                    Html.text "🔵"
+                    Html.text (props.getValue<string>())
+                ]
         ]
     ]
 
