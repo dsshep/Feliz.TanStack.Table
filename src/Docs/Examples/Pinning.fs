@@ -321,10 +321,12 @@ let view (state: State) (dispatch: Msg -> unit) =
                                     prop.colSpan header.colSpan
                                     prop.children [
                                         Html.div [
-                                            Html.flexRender (
-                                                header.isPlaceholder,
-                                                header.column.columnDef.header,
-                                                Table.getContext header)
+                                            if header.isPlaceholder then
+                                                Html.none
+                                            else 
+                                                Html.flexRender (
+                                                    header.column.columnDef.header,
+                                                    Table.getContext header)
                                         ]
                                         if not header.isPlaceholder && Column.getCanPin header.column then
                                             renderPinButtons header.column
@@ -361,10 +363,12 @@ let view (state: State) (dispatch: Msg -> unit) =
                                     prop.key footer.id
                                     prop.colSpan footer.colSpan
                                     prop.children [
-                                        Html.flexRender(
-                                            footer.isPlaceholder,
-                                            footer.column.columnDef.footer,
-                                            Table.getContext footer)
+                                        if footer.isPlaceholder then
+                                             Html.none
+                                        else 
+                                            Html.flexRender (
+                                                footer.column.columnDef.header,
+                                                Table.getContext footer)
                                     ]
                                 ]
                         ]

@@ -104,9 +104,9 @@ module rec Types =
                 props?table <- table
                 fn props)
             
-        static member inline aggregationFn<'T> (fn : AggregationProps<'T> -> obj) : ColumnDefOptionProp<'T> =
+        static member aggregationFn<'T> (fn : AggregationProps<'T> -> obj) : ColumnDefOptionProp<'T> =
             AggregationFn fn
-        static member inline aggregationFn<'T> (aggregation : Aggregation) : ColumnDefOptionProp<'T> =
+        static member aggregationFn<'T> (aggregation : Aggregation) : ColumnDefOptionProp<'T> =
             AggregationFn (aggregation.asString())
         static member aggregatedCell<'T, 'State, 'Msg, 'T2> (fn: CellContextProp<'T, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T> =
             AggregatedCell (fun props ->

@@ -164,10 +164,12 @@ let view (state: State) (dispatch: Msg -> unit) =
                                          position.relative
                                      ]
                                      prop.children [
-                                         Html.flexRender (
-                                             header.isPlaceholder,
-                                             header.column.columnDef.header,
-                                             Table.getContext header)
+                                         if header.isPlaceholder then
+                                                Html.none
+                                         else 
+                                             Html.flexRender (
+                                                 header.column.columnDef.header,
+                                                 Table.getContext header)
                                          Html.div [
                                              prop.onMouseDown (beginResize header)
                                              prop.onTouchStart (beginResize header)
