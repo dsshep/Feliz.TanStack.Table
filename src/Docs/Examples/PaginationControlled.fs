@@ -112,7 +112,7 @@ let update (msg: Msg) (state: State) =
             | First -> 0
             | Previous -> state.PageState.PageIndex - 1
             | Next -> state.PageState.PageIndex + 1
-            | Last -> (totalItems / state.PageState.PageSize)
+            | Last -> (totalItems / state.PageState.PageSize) - 1
             | Index i when i > 0 && i <= (totalItems / state.PageState.PageSize) -> i - 1
             | Index _ -> state.PageState.PageIndex
             
