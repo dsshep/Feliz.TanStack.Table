@@ -128,13 +128,12 @@ let update (msg: Msg) (state: State) =
                     { editingPerson with Progress = n }, newValue
                 | _ -> editingPerson, propertyChange.EditingData.Value
                 
-        let table =
+        let data =
             state.Table.Data
             |> Array.mapi (fun i d -> if i = propertyChange.EditingData.RowIndex then updated else d)
-            |> Table.setData state.Table
         
         { state with
-            Table = table
+            Table = Table.setData data state.Table
             EditingData = Some { propertyChange.EditingData with Value = inputValue } }, Cmd.none
         
     | FinishedEditing ->
