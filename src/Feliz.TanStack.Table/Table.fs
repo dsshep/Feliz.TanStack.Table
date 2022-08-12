@@ -134,10 +134,6 @@ module rec Table =
             if isJsFunc comp then (unbox comp) context
             else !!comp
         
-        static member flexRender<'T> (isPlaceholder : bool, comp : obj, context : Context<'T>) : ReactElement =
-            if isPlaceholder then Html.none
-            else Html.flexRender<'T> (comp, context)
-            
         static member flexRender<'T, 'TState, 'Msg> (state : 'TState, dispatch : 'Msg -> unit, comp : obj, context : Context<'T>) : ReactElement =
             if isJsFunc comp then 
                 let obj = createObj [

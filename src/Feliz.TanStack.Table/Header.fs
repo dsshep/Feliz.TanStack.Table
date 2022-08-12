@@ -12,3 +12,6 @@ module Header =
         static member getLeafHeaders (header : Header<'T>) : Header<'T>[] =
             header?getLeafHeaders()
             
+        static member isPlaceholder (header : Header<'T>) : bool =
+            header?isPlaceholder
+            

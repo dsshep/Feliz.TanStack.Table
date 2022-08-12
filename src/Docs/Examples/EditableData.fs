@@ -283,14 +283,19 @@ let view (state: State) (dispatch: Msg -> unit) =
                                      prop.key header.id
                                      prop.colSpan header.colSpan
                                      prop.children [
-                                         if header.isPlaceholder then Html.none else
-                                         Html.flexRender (
-                                             header.isPlaceholder,
-                                             header.column.columnDef.header,
-                                             Table.getContext header)
-                                         if Column.getCanFilter header.column then 
-                                            filter header.column state.Table
-                                         else Html.none
+                                         if header.isPlaceholder then
+                                             Html.none
+                                         else
+                                             Html.div [
+                                                 Html.flexRender (
+                                                     state,
+                                                     dispatch,
+                                                     header.column.columnDef.header,
+                                                     Table.getContext header)
+                                                 if Column.getCanFilter header.column then 
+                                                    filter header.column state.Table
+                                                 else Html.none
+                                            ]
                                      ]
                                  ]
                          ]
