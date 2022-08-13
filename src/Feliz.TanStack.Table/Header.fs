@@ -6,9 +6,6 @@ open Fable.Core.JsInterop
 module Header =
 
     type Header = 
-        static member getSize (header : Header<'T>) : int = 
-            header?getSize()
-
         static member getLeafHeaders (header : Header<'T>) : Header<'T>[] =
             header?getLeafHeaders()
             

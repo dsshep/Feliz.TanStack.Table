@@ -28,7 +28,11 @@ module TableProps =
                     | Cell f -> "cell" ==> f
                     | Columns def -> "columns" ==> (nativeColumnDefs def)
                     | AggregationFn f -> "aggregationFn" ==> f
-                    | AggregatedCell f -> "aggregatedCell" ==> f 
+                    | AggregatedCell f -> "aggregatedCell" ==> f
+                    | Size i -> "size" ==> i
+                    | MinSize i -> "minSize" ==> i
+                    | MaxSize i -> "maxSize" ==> i
+                    | EnableHiding hiding -> "enableHiding" ==> hiding
             ])
         |> Seq.toArray
 
@@ -61,6 +65,20 @@ module TableProps =
             prop.custom("manualPagination", manual)
         static member inline pageCount (count : int) =
             prop.custom("pageCount", count)
+        static member inline size (size : int) =
+            prop.custom("size", size)
+        static member inline maxSize (maxSize : int) =
+            prop.custom("maxSize", maxSize)
+        static member inline minSize (minSize : int) =
+            prop.custom("minSize", minSize)
+        static member onColumnSizingChange (onColumnSizingChange: Record<int> -> unit) =
+            prop.custom("onColumnSizingChange", onColumnSizingChange)
+        static member onColumnSizingInfoChange (onColumnSizingInfoChange: ColumnSizingInfoState -> unit) =
+            prop.custom("onColumnSizingInfoChange", onColumnSizingInfoChange)
+        static member onColumnVisibilityChange (onColumnVisibilityChange: Record<bool> -> unit) =
+            prop.custom("onColumnVisibilityChange", onColumnVisibilityChange)
+        static member enableHiding (hiding : bool) =
+            prop.custom("enableHiding", hiding)
         
             
         // Row Models

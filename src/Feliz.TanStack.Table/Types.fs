@@ -47,6 +47,10 @@ module rec Types =
         | AggregatedCell of obj
         | Columns of ColumnDefOptionProp<'T> list list
         | AggregationFn of obj
+        | Size of int
+        | MinSize of int
+        | MaxSize of int
+        | EnableHiding of bool
         
     type ColumnHelper =
         static member accessor (accessor: string, columnDefs: ColumnDefOptionProp<_> list) =
@@ -115,6 +119,10 @@ module rec Types =
                 fn props)
             
         static member columns columnDef = Columns columnDef
+        static member size size = Size size
+        static member minSize minSize = MinSize minSize
+        static member maxSize maxSize = MaxSize maxSize
+        static member EnableHiding hiding = EnableHiding hiding
 
     type CellContextProp<'T, 'State, 'Msg> =
         inherit Context<'T>

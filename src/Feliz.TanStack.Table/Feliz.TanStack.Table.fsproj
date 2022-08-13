@@ -30,6 +30,7 @@
         <Compile Include="Selection.fs" />
         <Compile Include="Grouping.fs" />
         <Compile Include="Sorting.fs" />
+        <Compile Include="Filter.fs" />
         <Compile Include="Column.fs" />
         <Compile Include="Sizing.fs" />
         <Compile Include="Row.fs" />

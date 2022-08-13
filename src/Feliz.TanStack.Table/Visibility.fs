@@ -3,8 +3,21 @@ namespace Feliz.TanStack.Table
 open Fable.Core.JsInterop
 
 [<AutoOpen>]
-module Visibility = 
+module Visibility =
+    type Column =
+        static member getCanHide (column : Column<'T>) : bool =
+            column?getCanHide()
+            
+        static member getIsVisible (column : Column<'T>) : bool =
+            column?getIsVisible()
+            
+        static member toggleVisibility (column : Column<'T>) : unit =
+            column?toggleVisibility()
+    
     type Table =
+        static member getVisibleFlatColumns (table : Table<'T>) : Column<'T>[] =
+            table?_obj?getVisibleFlatColumns()
+        
         static member getVisibleLeafColumns (table : Table<'T>) : Column<'T>[] =
             table?_obj?getVisibleLeafColumns()
             

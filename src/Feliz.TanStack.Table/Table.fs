@@ -122,8 +122,6 @@ module rec Table =
         static member getPreFilteredRowModel (table : Table<'T>) : RowModel<'T> =
             table?_obj?getPreFilteredRowModel()
             
-        static member getCenterTotalSize (table : Table<'T>) : int =
-            table?_obj?getCenterTotalSize()
             
     type Html =
         static member flexRender<'T> (comp : obj, context : Context<'T>) : ReactElement =

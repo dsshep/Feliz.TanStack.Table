@@ -54,6 +54,15 @@ module Sizing =
         static member getCanResize (column : Column<'T>) : bool =
             column?_obj?getCanResize()
             
+        static member getSize (column : Column<'T>) : int =
+            column?getSize()
+            
+        static member getIsResizing (column : Column<'T>) : bool =
+            column?getIsResizing()
+            
+        static member resetSize (column : Column<'T>) : unit =
+            column?resetSize()
+            
     type Table = 
         static member getDeltaOffset (table : Table<'T>) : int =
             table?_obj?getState()?columnSizingInfo?deltaOffset
@@ -64,7 +73,32 @@ module Sizing =
                 setInitialState prev table?_obj?options (Table.onStateChange table))
             table
            
+        static member resetColumnSizing (defaultState : bool) (table : Table<'T>) : unit =
+            table?_obj?resetColumnSizing(defaultState)
+        
+        static member resetHeaderSizeInfo (defaultState : bool) (table : Table<'T>) : unit =
+            table?_obj?resetHeaderSizeInfo(defaultState)
+        
+        static member getTotalSize (table : Table<'T>) : int =
+            table?_obj?getTotalSize()
+        
+        static member getLeftTotalSize (table : Table<'T>) : int =
+            table?_obj?getLeftTotalSize()
+        
+        static member getCenterTotalSize (table : Table<'T>) : int =
+            table?_obj?getCenterTotalSize()
+        
+        static member getRightTotalSize (table : Table<'T>) : int =
+            table?_obj?getRightTotalSize()
+           
     type Header =
+        static member getSize (header : Header<'T>) : int = 
+            header?getSize()
+            
+        static member getStart (header : Header<'T>) (position : ColumnPinningPosition) : int =
+            let posStr = position.asString()
+            header?getStart(posStr)
+        
         static member endResize (table : Table<'T>) : Table<'T> =
             let table = 
                 calculateChange
