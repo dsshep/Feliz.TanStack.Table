@@ -66,7 +66,7 @@ type State = {
 }
 
 let init () =
-    let defaultData = MakeData.make 1000
+    let defaultData = MakeData.makeCreatedAt 1000
     
     let tableProps = [
         tableProps.data defaultData
