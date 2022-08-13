@@ -55,45 +55,56 @@ type PageState = {
     PageSize: int
 }
 
-type State = {
-    Table : Table<Person>
-    PageState : PageState
-    QueryFn: int * int -> Person[]
-}
-
 type Msg =
     | Paginate of PaginateChange
     | PageSizeChange of int
+    | FetchedData of Person[]
     
+type State = {
+    Table : Table<Person>
+    PageState : PageState
+    QueryFn: int * int -> (Msg -> unit) -> unit
+    IsLoading: bool
+}
+
 let query () =
     let cache = Dictionary<int, Person>()
-    fun (page, count) ->
-        let cachedData =
-            let pageOffset = page * count
-            [ for i = pageOffset to pageOffset + count do
-                match cache.TryGetValue i with
-                | true, p -> i, Some p
-                | _ -> i, None ]
+    fun (page, count) dispatch ->
+        let sub() = async {
+            let cachedData =
+                let pageOffset = page * count
+                [ for i = pageOffset to pageOffset + count do
+                    match cache.TryGetValue i with
+                    | true, p -> i, Some p
+                    | _ -> i, None ]
             
-        [| for data in cachedData do
-               match data with
-               | _, Some p -> p
-               | i, None ->
-                   let person = MakeData.make 1 |> Array.head
-                   cache[i] <- person
-                   person |]
-
+            // simulate api call
+            if (cachedData |> List.exists (fun (_, o) -> o.IsNone)) then
+                do! Async.Sleep 500
+            
+            let generatedData =
+                [| for data in cachedData do
+                       match data with
+                       | _, Some p -> p
+                       | i, None ->
+                           let person = MakeData.make 1 |> Array.head
+                           cache[i] <- person
+                           person |]
+            FetchedData generatedData |> dispatch
+        }
+        sub() |> Async.StartImmediate
+    
 let createPaginationState pageIndex pageSize =
     { new PaginationState with
-            member _.pageIndex = pageIndex
-            member _.pageSize = pageSize }
+        member _.pageIndex = pageIndex
+        member _.pageSize = pageSize }
     
 let init () =
     let defaultPageSize = 10
     let query = query()
     
     let tableProps = [
-        tableProps.data (query(0, defaultPageSize))
+        tableProps.data [||]
         tableProps.columns columnDef
         tableProps.manualPagination true
         tableProps.pageCount (totalItems / defaultPageSize) ]
@@ -102,7 +113,8 @@ let init () =
     
     { Table = table
       PageState = { PageIndex = 0; PageSize = 10 }
-      QueryFn = query }, Cmd.none
+      QueryFn = query
+      IsLoading = true }, Cmd.ofSub (query(0, defaultPageSize))
 
 let update (msg: Msg) (state: State) =
     match msg with
@@ -120,23 +132,30 @@ let update (msg: Msg) (state: State) =
             Table.setPaginationState
                 (createPaginationState pageIndex state.PageState.PageSize)
                 state.Table
-            |> Table.setData (state.QueryFn(pageIndex, state.PageState.PageSize))
+            |> Table.setData [||]
             
         { state with
             Table = table
-            PageState = { state.PageState with PageIndex = pageIndex } }, Cmd.none
+            PageState = { state.PageState with PageIndex = pageIndex }
+            IsLoading = true }, Cmd.ofSub (state.QueryFn(pageIndex, state.PageState.PageSize))
         
     | PageSizeChange size ->
         let table =
             Table.setPaginationState
                 (createPaginationState state.PageState.PageIndex size)
                 state.Table
-            |> Table.setData (state.QueryFn(state.PageState.PageIndex, size))
+            |> Table.setData [||]
             |> Table.setPageCount (totalItems / size)
 
         { state with
             Table = table
-            PageState = { state.PageState with PageSize = size } }, Cmd.none
+            PageState = { state.PageState with PageSize = size }
+            IsLoading = true }, Cmd.ofSub (state.QueryFn(state.PageState.PageIndex, size))
+        
+    | FetchedData persons ->
+        { state with
+            Table = (Table.setData persons state.Table)
+            IsLoading = false }, Cmd.none
     
 let view (state: State) (dispatch: Msg -> unit) =
     let table = 
@@ -194,7 +213,6 @@ let view (state: State) (dispatch: Msg -> unit) =
                     ]
             ]
         
-        
         let paginationControls =
             let selectOptions = Map.ofList [
                 for i in 10..10..50 do
@@ -247,6 +265,7 @@ let view (state: State) (dispatch: Msg -> unit) =
                             ]
                         ]
                     ]
+                    if state.IsLoading then Html.text "Loading..." else Html.none
                 ]
             ]
             
