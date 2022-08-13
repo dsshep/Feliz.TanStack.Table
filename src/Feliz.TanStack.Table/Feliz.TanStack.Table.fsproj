@@ -29,9 +29,9 @@
         <Compile Include="Expanding.fs" />
         <Compile Include="Selection.fs" />
         <Compile Include="Grouping.fs" />
-        <Compile Include="Sizing.fs" />
         <Compile Include="Sorting.fs" />
         <Compile Include="Column.fs" />
+        <Compile Include="Sizing.fs" />
         <Compile Include="Row.fs" />
         <Compile Include="TableState.fs" />
         <Compile Include="UtilityTypes.fs" />

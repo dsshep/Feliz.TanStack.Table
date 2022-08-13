@@ -39,9 +39,8 @@ let columnDef =
           [ columnDef.header "Profile Progress"
             columnDef.footer (fun info -> info.column.id) ])
         ColumnHelper.accessor (
-            "CreatedAt", [
-                columnDef.header "Created At"
-            ])
+            "CreatedAt",
+            [ columnDef.header "Created At" ])
     ]
 
 type PaginateChange =
