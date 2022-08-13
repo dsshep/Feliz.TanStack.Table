@@ -145,6 +145,11 @@ module rec Types =
         abstract member getFlatHeaders: unit -> Header<'T> list
         abstract member getLeafHeaders: unit -> Header<'T> list
         
+    type SortDirection =
+        | Asc
+        | Desc
+        | NotSorted
+        
     [<Erase>]
     type StringOrFunc =
         | String of string

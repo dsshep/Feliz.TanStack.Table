@@ -10,6 +10,7 @@ module TableProps =
     let private getPaginationRowModel : unit -> obj = import "getPaginationRowModel" "@tanstack/table-core"
     let private getExpandedRowModel : unit -> obj = import "getExpandedRowModel" "@tanstack/table-core"
     let private getGroupedRowModel : unit -> obj = import "getGroupedRowModel" "@tanstack/table-core"
+    let private getSortedRowModel : unit -> obj = import "getSortedRowModel" "@tanstack/table-core"
     
     let rec private nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
         columnDefs
@@ -71,6 +72,8 @@ module TableProps =
             prop.custom ("getExpandedRowModel", getExpandedRowModel())
         static member groupedRowModel() =
             prop.custom ("getGroupedRowModel", getGroupedRowModel())
+        static member sortedRowModel() =
+            prop.custom ("getSortedRowModel", getSortedRowModel())
             
         // debug
         static member debugAll() =

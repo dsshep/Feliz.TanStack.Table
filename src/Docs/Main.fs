@@ -29,17 +29,19 @@ let view (state : State) (dispatch : Msg -> unit) =
     
     let sourceLinkOpt =
         let baseUrl = "https://github.com/dsshep/Feliz.TanStack.Table/tree/main/src/Docs/Examples/"
+        let some (s : string) = Some $"{baseUrl}{s}.fs"
         match state.Page with
         | Home -> None
-        | Basic -> Some $"{baseUrl}Basic.fs"
-        | Groups -> Some $"{baseUrl}Groups.fs"
-        | Ordering -> Some $"{baseUrl}Ordering.fs"
-        | Pinning -> Some $"{baseUrl}Pinning.fs"
-        | Resizing -> Some $"{baseUrl}Resizing.fs"
-        | EditableData -> Some $"{baseUrl}EditableData.fs"
-        | Expanding -> Some $"{baseUrl}Expanding.fs"
-        | Grouping -> Some $"{baseUrl}Grouping.fs"
-        | PaginationControlled -> Some $"{baseUrl}PaginationControlled.fs"
+        | Basic -> some "Basic"
+        | Groups -> some "Groups"
+        | Ordering -> some "Ordering"
+        | Pinning -> some "Pinning"
+        | Resizing -> some "Resizing"
+        | EditableData -> some "EditableData"
+        | Expanding -> some "Expanding"
+        | Grouping -> some "Grouping"
+        | PaginationControlled -> some "PaginationControlled"
+        | Sorting -> some "Sorting"
     
     let sourceLink =
         match sourceLinkOpt with
@@ -118,6 +120,7 @@ let view (state : State) (dispatch : Msg -> unit) =
                                     | Page.Expanding -> Examples.Expanding.Component()
                                     | Page.Grouping -> Examples.Grouping.Component()
                                     | Page.PaginationControlled -> Examples.PaginationControlled.Component()
+                                    | Page.Sorting -> Examples.Sorting.Component()
                                 ]
                             ])
                         colDiv sourceLink

@@ -15,6 +15,7 @@ type Page =
     | Expanding
     | Grouping
     | PaginationControlled
+    | Sorting
     
 type Link = {
   Name: string
@@ -42,6 +43,8 @@ let links: Link list = [
     Page = Grouping }
   { Name = "Pagination Controlled"
     Page = PaginationControlled }
+  { Name = "Sorting"
+    Page = Sorting }
 ]
 
 [<RequireQualifiedAccess>]
@@ -58,6 +61,7 @@ module Page =
         | [ "expanding" ] -> Page.Expanding
         | [ "grouping" ] -> Page.Grouping
         | [ "paginationControlled" ] -> Page.PaginationControlled
+        | [ "sorting" ] -> Page.Sorting
         | _ -> defaultPage
     
     let noQueryString segments : string list * (string * string) list = segments, []
@@ -75,6 +79,7 @@ module Page =
             | Page.Expanding -> [ "expanding" ]
             | Page.Grouping -> [ "grouping" ]
             | Page.PaginationControlled -> [ "paginationControlled" ]
+            | Page.Sorting -> [ "sorting" ]
         
         pageSegments |> noQueryString
     

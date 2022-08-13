@@ -17,6 +17,7 @@
     <Compile Include="Examples\Expanding.fs" />
     <Compile Include="Examples\Grouping.fs" />
     <Compile Include="Examples\PaginationControlled.fs" />
+    <Compile Include="Examples\Sorting.fs" />
     <Compile Include="Home.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="Main.fs" />
