@@ -12,30 +12,6 @@ module TableProps =
     let private getGroupedRowModel : unit -> obj = import "getGroupedRowModel" "@tanstack/table-core"
     let private getSortedRowModel : unit -> obj = import "getSortedRowModel" "@tanstack/table-core"
     
-    let rec private nativeColumnDefs (columnDefs: ColumnDefOptionProp<'T> list list) =
-        columnDefs
-        |> Seq.map (fun colDef ->
-            createObj [
-                for option in colDef do
-                    match option with
-                    | Id s -> "id" ==> s
-                    | AccessorKey s -> "accessorKey" ==> s
-                    | AccessorFn f -> "accessorFn" ==> f
-                    | HeaderStr s -> "header" ==> s
-                    | FooterStr s -> "footer" ==> s
-                    | HeaderFn f -> "header" ==> f
-                    | FooterFn f -> "footer" ==> f
-                    | Cell f -> "cell" ==> f
-                    | Columns def -> "columns" ==> (nativeColumnDefs def)
-                    | AggregationFn f -> "aggregationFn" ==> f
-                    | AggregatedCell f -> "aggregatedCell" ==> f
-                    | Size i -> "size" ==> i
-                    | MinSize i -> "minSize" ==> i
-                    | MaxSize i -> "maxSize" ==> i
-                    | EnableHiding hiding -> "enableHiding" ==> hiding
-            ])
-        |> Seq.toArray
-
     type TableStateProps<'T> =
         static member inline columnOrder (columnOrderState: string[]) =
             prop.custom("columnOrder", columnOrderState)
@@ -79,7 +55,26 @@ module TableProps =
             prop.custom("onColumnVisibilityChange", onColumnVisibilityChange)
         static member enableHiding (hiding : bool) =
             prop.custom("enableHiding", hiding)
-        
+        static member sortingFn (sortingFns : (string * SortingFn<'T>) seq) =
+            prop.custom("sortingFns", createObj (sortingFns |> Seq.map (fun (k, v) -> k, box v)))
+        static member manualSorting (manualSorting : bool) =
+            prop.custom("manualSorting", manualSorting)
+        static member onSortingChange (updater : RowSort[] -> RowSort[]) =
+            prop.custom("onSortingChange", updater)
+        static member enableSorting (enableSorting : bool) =
+            prop.custom("enableSorting", enableSorting)
+        static member enableSortingRemoval (enableSortingRemoval : bool) =
+            prop.custom("enableSortingRemoval", enableSortingRemoval)
+        static member enableMultiRemove (enableMultiRemove : bool) =
+            prop.custom("enableMultiRemove", enableMultiRemove)
+        static member enableMultiSort (enableMultiSort : bool) =
+            prop.custom("enableMultiSort", enableMultiSort)
+        static member sortDescFirst (sortDescFirst : bool) =
+            prop.custom("sortDescFirst", sortDescFirst)
+        static member maxMultiSortColCount (maxMultiSortColCount : int) =
+            prop.custom("maxMultiSortColCount", maxMultiSortColCount)
+        static member isMultiSortEvent (isMultiSortEvent : obj -> bool) =
+            prop.custom("isMultiSortEvent", isMultiSortEvent)
             
         // Row Models
         static member filteredRowModel() =

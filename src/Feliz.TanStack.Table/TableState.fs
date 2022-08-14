@@ -5,7 +5,7 @@ open Fable.Core.JsInterop
 [<AutoOpen>]
 module TableState =
     let private setState (name : string) (s : obj) (table : Table<'T>) : Table<'T> =
-        let o = createObj [ "pagination" ==> s ]
+        let o = createObj [ name ==> s ]
         table?_obj?setState(o)
         table
     
