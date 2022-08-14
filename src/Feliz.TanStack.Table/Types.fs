@@ -33,7 +33,7 @@ module rec Types =
         | Cell of obj
         | AggregatedCell of obj
         | Columns of ColumnDefOptionProp<'T> list list
-        | AggregationFn of obj
+        | AggregationFnOption of obj
         | EnableGrouping of bool
         | Size of int
         | MinSize of int

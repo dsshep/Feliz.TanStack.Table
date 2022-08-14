@@ -23,7 +23,7 @@ module ColumnDef =
                     | FooterFn f -> "footer" ==> f
                     | Cell f -> "cell" ==> f
                     | Columns def -> "columns" ==> (nativeColumnDefs def)
-                    | AggregationFn f -> "aggregationFn" ==> f
+                    | AggregationFnOption f -> "aggregationFn" ==> f
                     | EnableGrouping b -> "enableGrouping" ==> b
                     | AggregatedCell f -> "aggregatedCell" ==> f
                     | Size i -> "size" ==> i
@@ -59,10 +59,10 @@ module ColumnDef =
                 props?table <- table
                 fn props)
             
-        static member aggregationFn<'T> (fn : AggregationFn<'T> -> obj) : ColumnDefOptionProp<'T> =
-            AggregationFn fn
+        static member aggregationFn<'T> (fn : AggregationFn<'T>) : ColumnDefOptionProp<'T> =
+            AggregationFnOption fn
         static member aggregationFn<'T> (aggregation : Aggregation) : ColumnDefOptionProp<'T> =
-            AggregationFn (aggregation.asString())
+            AggregationFnOption (aggregation.asString())
         static member aggregatedCell<'T, 'State, 'Msg, 'T2> (fn: CellContextProp<'T, 'State, 'Msg> -> 'T2) : ColumnDefOptionProp<'T> =
             AggregatedCell (fun props ->
                 let table = wrapTable props?table
