@@ -34,6 +34,7 @@ module rec Types =
         | AggregatedCell of obj
         | Columns of ColumnDefOptionProp<'T> list list
         | AggregationFn of obj
+        | EnableGrouping of bool
         | Size of int
         | MinSize of int
         | MaxSize of int
@@ -75,6 +76,36 @@ module rec Types =
         abstract member getLeafHeaders: unit -> Header<'T> list
         
     type SortingFn<'T> = Row<'T> -> Row<'T> -> string -> int
+        
+    type AggregationFn<'T> = (unit -> Row<'T>[]) -> (unit -> Row<'T>) -> obj
+    
+    type Aggregation =
+        | Sum
+        | Min
+        | Max
+        | Extent
+        | Mean
+        | Median
+        | Unique
+        | UniqueCount
+        | Count
+        | Auto
+        with member this.asString() =
+                match this with
+                | Sum -> "sum"
+                | Min -> "min"
+                | Max -> "max"
+                | Extent -> "extent"
+                | Mean -> "mean"
+                | Median -> "median"
+                | Unique -> "unique"
+                | UniqueCount -> "uniqueCount"
+                | Count -> "count"
+                | Auto -> "auto"
+        
+    type AggregationFnOption<'T> =
+        | Aggregation of Aggregation
+        | AggregationFn of AggregationFn<'T>
         
     type SortDirection =
         | Asc
@@ -127,6 +158,8 @@ module rec Types =
         abstract member depth: int
         abstract member index: int
         abstract member original: 'T
+        abstract member groupingColumnId: string
+        abstract member groupingValue : obj
         abstract member subRows: Row<'T> []
     
     type RowModel<'T> =

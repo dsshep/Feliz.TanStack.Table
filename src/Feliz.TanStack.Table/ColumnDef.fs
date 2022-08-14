@@ -24,6 +24,7 @@ module ColumnDef =
                     | Cell f -> "cell" ==> f
                     | Columns def -> "columns" ==> (nativeColumnDefs def)
                     | AggregationFn f -> "aggregationFn" ==> f
+                    | EnableGrouping b -> "enableGrouping" ==> b
                     | AggregatedCell f -> "aggregatedCell" ==> f
                     | Size i -> "size" ==> i
                     | MinSize i -> "minSize" ==> i
@@ -37,34 +38,6 @@ module ColumnDef =
                     | SortUndefined o -> "sortUndefined" ==> o
             ])
         |> Seq.toArray
-    
-    type Aggregation =
-        | Sum
-        | Min
-        | Max
-        | Extent
-        | Mean
-        | Median
-        | Unique
-        | UniqueCount
-        | Count
-        | Auto
-        with member this.asString() =
-                match this with
-                | Sum -> "sum"
-                | Min -> "min"
-                | Max -> "max"
-                | Extent -> "extent"
-                | Mean -> "mean"
-                | Median -> "median"
-                | Unique -> "unique"
-                | UniqueCount -> "uniqueCount"
-                | Count -> "count"
-                | Auto -> "auto"
-        
-    type AggregationProps<'T> =
-        abstract member getLeafRows: unit -> Row<'T>[]
-        abstract member getChildRows: unit -> Row<'T>[]
         
     type columnDef =
         static member id s = Id s
@@ -86,7 +59,7 @@ module ColumnDef =
                 props?table <- table
                 fn props)
             
-        static member aggregationFn<'T> (fn : AggregationProps<'T> -> obj) : ColumnDefOptionProp<'T> =
+        static member aggregationFn<'T> (fn : AggregationFn<'T> -> obj) : ColumnDefOptionProp<'T> =
             AggregationFn fn
         static member aggregationFn<'T> (aggregation : Aggregation) : ColumnDefOptionProp<'T> =
             AggregationFn (aggregation.asString())
@@ -95,16 +68,14 @@ module ColumnDef =
                 let table = wrapTable props?table
                 props?table <- table
                 fn props)
-            
+        static member enableGrouping (enableGrouping : bool) = EnableGrouping enableGrouping
         static member columns columnDef = Columns columnDef
         static member size size = Size size
         static member minSize minSize = MinSize minSize
         static member maxSize maxSize = MaxSize maxSize
         static member enableHiding hiding = EnableHiding hiding
-        static member sortingFn<'T> (fn : SortingFn<'T>) : ColumnDefOptionProp<'T> =
-            SortingFn fn
-        static member sortingFn<'T> (sortingFnKey : string) : ColumnDefOptionProp<'T> =
-            SortingFn sortingFnKey
+        static member sortingFn<'T> (fn : SortingFn<'T>) : ColumnDefOptionProp<'T> = SortingFn fn
+        static member sortingFn<'T> (sortingFnKey : string) : ColumnDefOptionProp<'T> = SortingFn sortingFnKey
         static member sortDescFirst (sortDescFirst : bool) = SortDescFirst sortDescFirst
         static member enableSorting (enableSorting : bool) = EnableSorting enableSorting
         static member enableMultiSort (enableMultiSort : bool) = EnableMultiSort enableMultiSort
@@ -114,7 +85,6 @@ module ColumnDef =
             | 1 | -1 -> ()
             | _ -> failwithf "sortUndefined must be either -1 or 1"
             SortUndefined sortUndefined
-        
     
     type ColumnHelper =
         static member accessor (accessor: string, columnDefs: ColumnDefOptionProp<_> list) =

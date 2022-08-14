@@ -75,6 +75,21 @@ module TableProps =
             prop.custom("maxMultiSortColCount", maxMultiSortColCount)
         static member isMultiSortEvent (isMultiSortEvent : obj -> bool) =
             prop.custom("isMultiSortEvent", isMultiSortEvent)
+        static member aggregationFns (aggregationFns : (string * AggregationFn<'T>) seq) =
+            prop.custom("aggregationFns", createObj (aggregationFns |> Seq.map (fun (k, v) -> k, box v)))
+        static member manualGrouping (manualGrouping : bool) =
+            prop.custom("manualGrouping", manualGrouping)
+        static member onGroupingChange (onGroupingChange : string[]) =
+            prop.custom ("onGroupingChange", onGroupingChange)
+        static member onGroupingChange (onGroupingChange : string[] -> string[]) =
+            prop.custom ("onGroupingChange", onGroupingChange)
+        static member enableGrouping (enableGrouping : bool) =
+            prop.custom("enableGrouping", enableGrouping)
+        static member groupedColumnMode (groupedColumnMode : string) =
+            match groupedColumnMode with
+            | "reorder" | "remove" -> ()
+            | _ -> failwith "Invalid property, must be 'reorder' or 'remove'"
+            prop.custom("groupedColumnMode", groupedColumnMode)
             
         // Row Models
         static member filteredRowModel() =
