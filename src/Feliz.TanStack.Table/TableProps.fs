@@ -41,6 +41,8 @@ module TableProps =
             prop.custom("manualPagination", manual)
         static member inline pageCount (count : int) =
             prop.custom("pageCount", count)
+        static member inline autoResetPagination (autoResetPagination : bool) =
+            prop.custom("autoResetPagination", autoResetPagination)
         static member inline size (size : int) =
             prop.custom("size", size)
         static member inline maxSize (maxSize : int) =
@@ -90,6 +92,37 @@ module TableProps =
             | "reorder" | "remove" -> ()
             | _ -> failwith "Invalid property, must be 'reorder' or 'remove'"
             prop.custom("groupedColumnMode", groupedColumnMode)
+            
+        static member manualExpanding (manualExpanding : bool) =
+            prop.custom("manualExpanding", manualExpanding)
+        static member onExpandedChange (onExpandedChange : string[] -> string[]) =
+            prop.custom ("onExpandedChange", onExpandedChange)
+        static member autoResetExpanded (autoResetExpanded : bool) =
+            prop.custom("autoResetExpanded", autoResetExpanded)
+        static member enableExpanding (enableExpanding : bool) =
+            prop.custom ("enableExpanding", enableExpanding)
+        static member getIsRowExpanded (getIsRowExpanded : Row<'T> -> bool) =
+            prop.custom ("getIsRowExpanded", getIsRowExpanded)
+        static member getRowCanExpand (getRowCanExpand : Row<'T> -> bool) =
+            prop.custom ("getRowCanExpand", getRowCanExpand)
+        static member paginateExpandedRows (paginateExpandedRows : bool) =
+            prop.custom ("paginateExpandedRows", paginateExpandedRows)
+        
+        static member enableRowSelection (enableRowSelection : bool) =
+            prop.custom ("enableRowSelection", enableRowSelection)
+        static member enableRowSelection (enableRowSelection : Row<'T> -> bool) =
+            prop.custom ("enableRowSelection", enableRowSelection)
+        static member enableMultiRowSelection (enableMultiRowSelection : bool) =
+            prop.custom ("enableMultiRowSelection", enableMultiRowSelection)
+        static member enableMultiRowSelection (enableMultiRowSelection : Row<'T> -> bool) =
+            prop.custom ("enableMultiRowSelection", enableMultiRowSelection)
+        static member enableSubRowSelection (enableSubRowSelection : bool) =
+            prop.custom ("enableSubRowSelection", enableSubRowSelection)
+        static member enableSubRowSelection (enableSubRowSelection : Row<'T> -> bool) =
+            prop.custom ("enableSubRowSelection", enableSubRowSelection)  
+        static member onRowSelectionChange (onRowSelectionChange : Record<bool> -> Record<bool>) =
+            prop.custom("onRowSelectionChange", onRowSelectionChange)
+            
             
         // Row Models
         static member filteredRowModel() =
